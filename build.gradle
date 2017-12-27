@@ -1,0 +1,50 @@
+buildscript {
+    
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.0.1'
+    }
+}
+
+if (project.hasProperty('local')) {
+    ext.RELEASE_REPOSITORY_URL = LOCAL_MAVEN_URL
+}
+
+allprojects {
+    repositories {
+        maven {
+            url LOCAL_MAVEN_URL
+        }
+        google()
+        jcenter()
+    }
+    group = GROUP
+    version = VERSION_NAME
+
+    tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+ext {
+
+    MIN_SDK = 16
+    TARGET_SDK = 26
+    BUILD_TOOLS = '26.0.3'
+
+    final def supportVersion = '26.1.0'
+    SUPPORT_ANNOTATIONS = "com.android.support:support-annotations:$supportVersion"
+
+    LISTENERS = 'ru.noties:listeners:1.0.1'
+
+    TEST_JUNIT = 'junit:junit:4.12'
+    TEST_ROBOLECTRIC = 'org.robolectric:robolectric:3.5.1'
+    TEST_MOCKITO = 'org.mockito:mockito-core:2.13.0'
+}
