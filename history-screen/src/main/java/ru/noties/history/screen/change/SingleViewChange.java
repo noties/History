@@ -10,8 +10,6 @@ import ru.noties.history.screen.ScreenManager;
 @SuppressWarnings("WeakerAccess")
 public abstract class SingleViewChange implements SingleChange {
 
-    // todo: beware that views are animated separately, so some visual glitches might occur
-
     protected abstract void applyStartValues(
             boolean reverse,
             @NonNull ViewGroup container,
@@ -63,70 +61,4 @@ public abstract class SingleViewChange implements SingleChange {
             }
         };
     }
-//
-//    protected boolean isReady(@NonNull View view) {
-//        return view.getWidth() > 0;
-//    }
-//
-//    @NonNull
-//    protected ChangeCallback animateNow(
-//            final boolean reverse,
-//            @NonNull final ViewGroup container,
-//            @NonNull final View view,
-//            @NonNull final Runnable endAction
-//    ) {
-//
-//    }
-//
-//    @NonNull
-//    protected ChangeCallback animateWhenReady(
-//            final boolean reverse,
-//            @NonNull final ViewGroup container,
-//            @NonNull final View view,
-//            @NonNull final Runnable endAction
-//    ) {
-//
-//        final Started started = new Started();
-//
-//        final ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
-//            @Override
-//            public boolean onPreDraw() {
-//                if (isReady(view)) {
-//                    started.mark = true;
-//                    removeOnPreDrawListener(view, this);
-//                    applyStartValues(reverse, container, view);
-//                    startAnimation(reverse, container, view, endAction);
-//                    return true;
-//                }
-//                return false;
-//            }
-//        };
-//
-//        addOnPreDrawListener(view, listener);
-//
-//        return new ChangeCallback() {
-//            @Override
-//            public void cancel() {
-//                if (started.mark) {
-//                    cancelAnimation(reverse, container, view);
-//                } else {
-//                    removeOnPreDrawListener(view, listener);
-//                }
-//                endAction.run();
-//            }
-//        };
-//    }
-//
-//    private static void addOnPreDrawListener(@NonNull View view, @NonNull ViewTreeObserver.OnPreDrawListener listener) {
-//        view.getViewTreeObserver().addOnPreDrawListener(listener);
-//        view.invalidate();
-//    }
-//
-//    private static void removeOnPreDrawListener(@NonNull View view, @NonNull ViewTreeObserver.OnPreDrawListener listener) {
-//        view.getViewTreeObserver().removeOnPreDrawListener(listener);
-//    }
-//
-//    private static class Started {
-//        boolean mark;
-//    }
 }

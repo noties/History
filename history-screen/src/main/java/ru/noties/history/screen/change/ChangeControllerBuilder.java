@@ -175,6 +175,7 @@ public class ChangeControllerBuilder<K extends Enum<K>> {
 
             Key<?> key = (Key<?>) o;
 
+            //noinspection SimplifiableIfStatement
             if (from != null ? !from.equals(key.from) : key.from != null) return false;
             return to != null ? to.equals(key.to) : key.to == null;
         }

@@ -24,6 +24,6 @@ public final class EntryDef<K extends Enum<K>> {
         }
         isBuilt = true;
 
-        return new Entry<K>(key, state);
+        return new Entry<>(key, state);
     }
 }

@@ -284,6 +284,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         if (poppedItems.size() > 1) {
 
             final List<Screen<K, ? extends Parcelable>> screens = new ArrayList<>(poppedItems.size());
+
             for (ScreenManagerItem<K> item : poppedItems) {
                 screens.add(item.screen);
             }

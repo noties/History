@@ -2,6 +2,7 @@ package ru.noties.history;
 
 import android.support.annotation.NonNull;
 
+@SuppressWarnings("unused")
 public class SubscriptionDelegate implements Subscription, Subscription.Visitor {
 
     private Subscription subscription;

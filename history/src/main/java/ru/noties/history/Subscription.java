@@ -10,6 +10,7 @@ public interface Subscription {
 
     void unsubscribe();
 
+    @SuppressWarnings("UnusedReturnValue")
     @NonNull
     Subscription accept(@NonNull Visitor visitor);
 }

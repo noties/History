@@ -20,6 +20,7 @@ public final class HistoryState implements Parcelable {
                 : null;
     }
 
+    @SuppressWarnings("SameParameterValue")
     @Nullable
     public static HistoryState restore(@Nullable Bundle bundle, @NonNull String key) {
         return bundle != null

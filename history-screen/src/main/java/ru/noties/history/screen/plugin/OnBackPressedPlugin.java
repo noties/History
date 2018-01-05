@@ -6,6 +6,7 @@ import ru.noties.history.Subscription;
 import ru.noties.history.SubscriptionImpl;
 import ru.noties.listeners.Listeners;
 
+@SuppressWarnings("unused")
 public abstract class OnBackPressedPlugin implements Plugin {
 
     // LIFO

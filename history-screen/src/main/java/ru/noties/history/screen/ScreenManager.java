@@ -13,6 +13,7 @@ import ru.noties.history.HistoryState;
 import ru.noties.history.Subscription;
 import ru.noties.history.screen.plugin.Plugin;
 
+@SuppressWarnings("unused")
 public abstract class ScreenManager<K extends Enum<K>> {
 
     @NonNull
@@ -21,7 +22,10 @@ public abstract class ScreenManager<K extends Enum<K>> {
     }
 
     @NonNull
-    public static <K extends Enum<K>> ScreenManagerBuilder<K> builder(@NonNull History<K> history, @NonNull ScreenProvider<K> screenProvider) {
+    public static <K extends Enum<K>> ScreenManagerBuilder<K> builder(
+            @NonNull History<K> history,
+            @NonNull ScreenProvider<K> screenProvider
+    ) {
         return new ScreenManagerBuilder<K>()
                 .history(history)
                 .screenProvider(screenProvider);

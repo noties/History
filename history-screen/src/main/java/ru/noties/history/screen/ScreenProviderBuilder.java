@@ -23,7 +23,7 @@ public class ScreenProviderBuilder<K extends Enum<K>> {
 
     ScreenProviderBuilder(@NonNull Class<K> type) {
         this.type = type;
-        this.actions = new EnumMap<K, Action<K, Parcelable>>(type);
+        this.actions = new EnumMap<>(type);
     }
 
     @NonNull

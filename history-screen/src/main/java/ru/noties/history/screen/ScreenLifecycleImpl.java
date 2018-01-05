@@ -14,7 +14,7 @@ class ScreenLifecycleImpl<K extends Enum<K>> implements ScreenLifecycleCallbacks
 
     private final Screen<K, ? extends Parcelable> screen;
 
-    private final Map<Event, Listeners<Action>> eventActions = new EnumMap<Event, Listeners<Action>>(Event.class);
+    private final Map<Event, Listeners<Action>> eventActions = new EnumMap<>(Event.class);
 
 
     ScreenLifecycleImpl(@NonNull Screen<K, ? extends Parcelable> screen) {

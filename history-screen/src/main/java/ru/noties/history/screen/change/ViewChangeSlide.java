@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewGroup;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class ViewChangeSlide extends ViewChange {
 
     @NonNull
@@ -24,6 +25,7 @@ public class ViewChangeSlide extends ViewChange {
         return new ViewChangeSlide(duration, RIGHT);
     }
 
+    @SuppressWarnings("SameParameterValue")
     @NonNull
     public static <K extends Enum<K>> Change<K> fromBottom(long duration) {
         //noinspection unchecked

@@ -12,6 +12,7 @@ import ru.noties.history.screen.ScreenManager;
 
 public abstract class ChangeController<K extends Enum<K>> {
 
+    @SuppressWarnings("unused")
     @NonNull
     public static <K extends Enum<K>> ChangeControllerBuilder<K> builder(@NonNull Class<K> type) {
         return new ChangeControllerBuilder<>();
