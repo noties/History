@@ -4,7 +4,9 @@ import android.support.annotation.NonNull;
 
 public abstract class PermissionResultPlugin implements Plugin {
 
+    public interface Action {
 
+    }
 
     @NonNull
     @Override

@@ -8,6 +8,7 @@ import android.view.View;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+@Deprecated
 public class SlideTransition extends AbsTransition {
 
     @NonNull

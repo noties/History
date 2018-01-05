@@ -5,7 +5,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-public class ScreenLayout extends FrameLayout implements TransitionLock {
+public class ScreenLayout extends FrameLayout implements ChangeLock {
 
     private boolean locked;
 

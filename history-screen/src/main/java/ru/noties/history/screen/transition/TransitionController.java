@@ -6,6 +6,7 @@ import android.view.View;
 
 import ru.noties.history.Entry;
 
+@Deprecated
 public abstract class TransitionController<K extends Enum<K>> {
 
     @NonNull

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import ru.noties.history.Entry;
 
+@Deprecated
 public class TransitionControllerBuilder<K extends Enum<K>> {
 
     @NonNull

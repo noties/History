@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 
 // must be stateless
+@Deprecated
 public interface Transition {
 
     interface Callback {

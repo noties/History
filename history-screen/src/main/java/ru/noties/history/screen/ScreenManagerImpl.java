@@ -18,17 +18,15 @@ import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.history.Subscription;
+import ru.noties.history.screen.change.ChangeCallback;
+import ru.noties.history.screen.change.ChangeController;
 import ru.noties.history.screen.plugin.Plugin;
-import ru.noties.history.screen.transition.Transition;
-import ru.noties.history.screen.transition.TransitionController;
 
 class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements History.Observer<K> {
 
     // todo: validate that createView does not modify container (at least for children count...), but do we need it actually?
     // todo: getItem|Screen method
     // todo: force main thread
-    // todo: maybe we could instead of the whole history supply the observer... so we could ignore some keys (mock entries)
-    //      - the thing is: we won't allow mocking of items, but allow filtering history before saving
 
     private final History<K> history;
 
@@ -38,7 +36,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
     private final Subscription historySubscription;
 
-    private final TransitionController<K> transitionController;
+    private final ChangeController<K> changeController;
 
     private final ScreenManagerEventDispatcher<K> eventDispatcher = new ScreenManagerEventDispatcher<>();
 
@@ -51,12 +49,12 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
     private final Map<Class<? extends Plugin>, Plugin> plugins;
 
-    private final TransitionLock transitionLock;
+    private final ChangeLock changeLock;
 
 
-    private Transition.Callback pendingTransition;
+    private ChangeCallback pendingChangeCallback;
 
-    private boolean pendingTransitionCancelled;
+    private boolean pendingChangeCancelled;
 
     private Activity activity;
 
@@ -77,24 +75,24 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
             @NonNull ViewGroup container,
             @NonNull History<K> history,
             @NonNull ScreenProvider<K> screenProvider,
-            @NonNull TransitionController<K> transitionController,
+            @NonNull ChangeController<K> changeController,
             @NonNull VisibilityProvider<K> visibilityProvider,
             @Nullable LayoutInflater inflater,
             boolean detachLastView,
             @NonNull Map<Class<? extends Plugin>, Plugin> plugins,
-            @NonNull TransitionLock transitionLock
+            @NonNull ChangeLock changeLock
     ) {
         this.activity = activity;
         this.container = container;
         this.history = history;
         this.screenProvider = screenProvider;
         this.historySubscription = history.observe(this);
-        this.transitionController = transitionController;
+        this.changeController = changeController;
         this.visibilityProvider = visibilityProvider;
         this.layoutInflater = inflater;
         this.detachLastView = detachLastView;
         this.plugins = plugins;
-        this.transitionLock = transitionLock;
+        this.changeLock = changeLock;
 
         listenForActivityEvents();
         listenForContainerEvents();
@@ -142,7 +140,11 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         });
     }
 
-    private void replaceScreen(@Nullable Entry<K> previous, @NonNull final Entry<K> current, @NonNull final ReplaceEndAction<K> endAction) {
+    private void replaceScreen(
+            @Nullable Entry<K> previous,
+            @NonNull final Entry<K> current,
+            @NonNull final ReplaceEndAction<K> endAction
+    ) {
 
         cancelPendingTransition();
 
@@ -162,39 +164,38 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
             previousItem = null;
         }
 
-        // obtain previous (actually `current`) view to accept modifications
-        final View previousView = previousItem != null
-                ? previousItem.view
-                : null;
-
         final ScreenManagerItem<K> currentItem = init(current);
 
         attach(currentItem);
 
-        transitionLock.lock();
+        changeLock.lock();
 
-        // execute transition between previous and current
-        pendingTransition = transitionController.forward(previous, current, previousView, currentItem.view, new Runnable() {
-            @Override
-            public void run() {
+        pendingChangeCallback = changeController.forward(
+                this,
+                screen(previousItem),
+                currentItem.screen,
+                new Runnable() {
+                    @Override
+                    public void run() {
 
-                pendingTransition = null;
+                        pendingChangeCallback = null;
 
-                transitionLock.unlock();
+                        changeLock.unlock();
 
-                if (!pendingTransitionCancelled
-                        && activityResumed) {
-                    // also: we must check if activity is in resumed state,
-                    // so we do not make screen active when activity is not
-                    active(currentItem);
+                        if (!pendingChangeCancelled
+                                && activityResumed) {
+                            // also: we must check if activity is in resumed state,
+                            // so we do not make screen active when activity is not
+                            active(currentItem);
+                        }
+
+                        // only run supplied action if we have previous item
+                        if (previousItem != null) {
+                            endAction.run(previousItem);
+                        }
+                    }
                 }
-
-                // only run supplied action if we have previous item
-                if (previousItem != null) {
-                    endAction.run(previousItem);
-                }
-            }
-        });
+        );
     }
 
     @Override
@@ -209,31 +210,32 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         // now, obtain item to appear
         final ScreenManagerItem<K> toAppearItem = onPoppedToAppear(toAppear, items.size() - 2);
 
-        final View toAppearView = toAppearItem != null
-                ? toAppearItem.view
-                : null;
+        changeLock.lock();
 
-        transitionLock.lock();
+        pendingChangeCallback = changeController.back(
+                this,
+                poppedItem.screen,
+                screen(toAppearItem),
+                new Runnable() {
+                    @Override
+                    public void run() {
 
-        pendingTransition = transitionController.back(popped, toAppear, poppedItem.view, toAppearView, new Runnable() {
-            @Override
-            public void run() {
+                        pendingChangeCallback = null;
 
-                pendingTransition = null;
+                        changeLock.unlock();
 
-                transitionLock.unlock();
+                        if (toAppearItem != null
+                                && !pendingChangeCancelled
+                                && activityResumed) {
+                            active(toAppearItem);
+                        }
 
-                if (toAppearItem != null
-                        && !pendingTransitionCancelled
-                        && activityResumed) {
-                    active(toAppearItem);
+                        detach(poppedItem, toAppearItem == null && !detachLastView);
+
+                        destroy(poppedItem);
+                    }
                 }
-
-                detach(poppedItem, toAppearItem == null && !detachLastView);
-
-                destroy(poppedItem);
-            }
-        });
+        );
     }
 
     @Override
@@ -258,47 +260,73 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
         final ScreenManagerItem<K> toAppearItem = onPoppedToAppear(toAppear, items.size() - popped.size() - 1);
 
-        final View toAppearView = toAppearItem != null
-                ? toAppearItem.view
-                : null;
 
-        transitionLock.lock();
+        changeLock.lock();
 
-        pendingTransition = transitionController.back(poppedTopItem.entry, toAppear, viewForPoppedItems, toAppearView, new Runnable() {
+        final Runnable endAction = new Runnable() {
             @Override
             public void run() {
 
-                pendingTransition = null;
+                pendingChangeCallback = null;
 
-                transitionLock.unlock();
+                changeLock.unlock();
 
                 if (toAppearItem != null
-                        && !pendingTransitionCancelled
+                        && !pendingChangeCancelled
                         && activityResumed) {
                     active(toAppearItem);
                 }
 
                 destroyPopped(toAppearItem, viewForPoppedItems);
             }
-        });
+        };
+
+        if (poppedItems.size() > 1) {
+
+            final List<Screen<K, ? extends Parcelable>> screens = new ArrayList<>(poppedItems.size());
+            for (ScreenManagerItem<K> item : poppedItems) {
+                screens.add(item.screen);
+            }
+
+            pendingChangeCallback = changeController.back(
+                    this,
+                    screens,
+                    screen(toAppearItem),
+                    viewForPoppedItems,
+                    endAction
+            );
+
+        } else {
+            pendingChangeCallback = changeController.back(
+                    this,
+                    poppedTopItem.screen,
+                    screen(toAppearItem),
+                    endAction
+            );
+        }
     }
 
     private void cancelPendingTransition() {
 
-        if (pendingTransition != null) {
-            pendingTransitionCancelled = true;
-            pendingTransition.cancel();
-
-            transitionLock.unlock();
+        if (pendingChangeCallback != null) {
+            pendingChangeCancelled = true;
+            pendingChangeCallback.cancel();
         }
 
         // clear this flag no matter of pendingTransition state
-        pendingTransitionCancelled = false;
+        pendingChangeCancelled = false;
     }
 
     @NonNull
     private ScreenManagerItem<K> lastItem() {
         return items.get(items.size() - 1);
+    }
+
+    @Nullable
+    private Screen<K, ? extends Parcelable> screen(@Nullable ScreenManagerItem<K> item) {
+        return item == null
+                ? null
+                : item.screen;
     }
 
     @Nullable
@@ -338,6 +366,38 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     @Override
     public History<K> history() {
         return history;
+    }
+
+    @NonNull
+    @Override
+    public ViewGroup container() {
+        return container;
+    }
+
+    @Nullable
+    @Override
+    public Screen<K, ? extends Parcelable> findScreen(@NonNull View view) {
+        Screen<K, ? extends Parcelable> screen = null;
+        for (ScreenManagerItem<K> item : items) {
+            if (view == item.view) {
+                screen = item.screen;
+                break;
+            }
+        }
+        return screen;
+    }
+
+    @Nullable
+    @Override
+    public Screen<K, ? extends Parcelable> findScreen(@NonNull Entry<K> entry) {
+        Screen<K, ? extends Parcelable> screen = null;
+        for (ScreenManagerItem<K> item : items) {
+            if (entry == item.entry) {
+                screen = item.screen;
+                break;
+            }
+        }
+        return screen;
     }
 
     @NonNull

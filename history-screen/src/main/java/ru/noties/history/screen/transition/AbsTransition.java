@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
+@Deprecated
 public abstract class AbsTransition implements Transition {
 
 

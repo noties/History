@@ -3,6 +3,7 @@ package ru.noties.history.screen.transition;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+@Deprecated
 public class TransitionNoOp implements Transition {
 
     @NonNull

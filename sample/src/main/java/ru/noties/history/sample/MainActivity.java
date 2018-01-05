@@ -16,9 +16,6 @@ import ru.noties.history.screen.ScreenProvider;
 import ru.noties.history.screen.Visibility;
 import ru.noties.history.screen.VisibilityProvider;
 import ru.noties.history.screen.plugin.ActivityResultPlugin;
-import ru.noties.history.screen.transition.AlphaTransition;
-import ru.noties.history.screen.transition.SlideTransition;
-import ru.noties.history.screen.transition.TransitionController;
 import ru.noties.requirements.EventSource;
 
 // Atop (atop)
@@ -55,13 +52,13 @@ public class MainActivity extends Activity {
                 .register(ScreenKey.DIALOG, DialogScreen::new)
                 .build();
 
-        final TransitionController<ScreenKey> transitionController = TransitionController.builder(ScreenKey.class)
-                .when(ScreenKey.SPLASH, ScreenKey.START, SlideTransition.top(200), SlideTransition.bottom(200))
-                .whenTo(ScreenKey.START, SlideTransition.right(200), SlideTransition.left(200))
-                .when(ScreenKey.START, ScreenKey.REQUIREMENT, SlideTransition.bottom(200), SlideTransition.top(200))
-                .when(ScreenKey.REQUIREMENT, ScreenKey.START, new AlphaTransition(200), new AlphaTransition(200))
-                .whenTo(ScreenKey.DIALOG, new AlphaTransition(200), SlideTransition.left(200))
-                .build();
+//        final TransitionController<ScreenKey> transitionController = TransitionController.builder(ScreenKey.class)
+//                .when(ScreenKey.SPLASH, ScreenKey.START, SlideTransition.top(200), SlideTransition.bottom(200))
+//                .whenTo(ScreenKey.START, SlideTransition.right(200), SlideTransition.left(200))
+//                .when(ScreenKey.START, ScreenKey.REQUIREMENT, SlideTransition.bottom(200), SlideTransition.top(200))
+//                .when(ScreenKey.REQUIREMENT, ScreenKey.START, new AlphaTransition(200), new AlphaTransition(200))
+//                .whenTo(ScreenKey.DIALOG, new AlphaTransition(200), SlideTransition.left(200))
+//                .build();
 
         final VisibilityProvider<ScreenKey> visibilityProvider = VisibilityProvider.builder(ScreenKey.class)
                 .whenTo(ScreenKey.DIALOG, Visibility.VISIBLE)
@@ -73,10 +70,9 @@ public class MainActivity extends Activity {
         final ScreenLayout screenLayout = findViewById(R.id.screen_layout);
 
         screenManager = ScreenManager.builder(history, screenProvider)
-                .transitionController(transitionController)
                 .visibilityProvider(visibilityProvider)
                 .addPlugin(activityResultPlugin)
-                .transitionLock(screenLayout)
+                .changeLock(screenLayout)
                 .build(this, screenLayout);
 
         history.observe(new LoggingObserver<ScreenKey>());
