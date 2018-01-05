@@ -10,5 +10,6 @@ public interface Subscription {
 
     void unsubscribe();
 
-    void accept(@NonNull Visitor visitor);
+    @NonNull
+    Subscription accept(@NonNull Visitor visitor);
 }

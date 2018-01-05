@@ -28,8 +28,10 @@ public class CompositeSubscription implements Subscription, Subscription.Visitor
         subscriptions.clear();
     }
 
+    @NonNull
     @Override
-    public void accept(@NonNull Visitor visitor) {
+    public Subscription accept(@NonNull Visitor visitor) {
         visitor.visit(this);
+        return this;
     }
 }

@@ -25,8 +25,10 @@ public class SubscriptionImpl<T> implements Subscription {
         }
     }
 
+    @NonNull
     @Override
-    public void accept(@NonNull Visitor visitor) {
+    public Subscription accept(@NonNull Visitor visitor) {
         visitor.visit(this);
+        return this;
     }
 }
