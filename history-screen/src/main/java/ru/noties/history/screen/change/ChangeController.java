@@ -12,6 +12,24 @@ import ru.noties.history.screen.ScreenManager;
 
 public abstract class ChangeController<K extends Enum<K>> {
 
+    @NonNull
+    public static <K extends Enum<K>> ChangeControllerBuilder<K> builder(@NonNull Class<K> type) {
+        return new ChangeControllerBuilder<>();
+    }
+
+    @NonNull
+    public static <K extends Enum<K>> ChangeController<K> create(@NonNull Change<K> change) {
+        return null;
+    }
+
+    @NonNull
+    public static <K extends Enum<K>> ChangeController<K> create(
+            @NonNull SingleChange<K> from,
+            @NonNull SingleChange<K> to
+    ) {
+        return create(CombinedChange.create(from, to));
+    }
+
     // so, we must have at least 2 things: provide independent 2 animations (not linked)
     // an animation that deal with both views
 

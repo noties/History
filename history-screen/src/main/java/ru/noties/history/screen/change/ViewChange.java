@@ -5,34 +5,62 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
+import ru.noties.history.screen.Screen;
+import ru.noties.history.screen.ScreenManager;
+
 @SuppressWarnings("WeakerAccess")
-public abstract class AbsChange implements Change {
-
-    // todo: actually it doesn't make sense, we allow inspecting Screen, but providing only View for animation
-    // must be changed
-
-    protected abstract void applyStartValues(@NonNull ViewGroup container, @NonNull View from, @NonNull View to);
-
-    protected abstract void startAnimation(@NonNull ViewGroup container, @NonNull View from, @NonNull View to, @NonNull Runnable endAction);
-
-    protected abstract void cancelAnimation(@NonNull ViewGroup container, @NonNull View from, @NonNull View to);
+public abstract class ViewChange implements Change {
 
 
+    protected abstract void applyStartValues(
+            boolean reverse,
+            @NonNull ViewGroup container,
+            @NonNull View from,
+            @NonNull View to
+    );
+
+    protected abstract void startAnimation(
+            boolean reverse,
+            @NonNull ViewGroup container,
+            @NonNull View from,
+            @NonNull View to,
+            @NonNull Runnable endAction
+    );
+
+    protected abstract void cancelAnimation(
+            boolean reverse,
+            @NonNull ViewGroup container,
+            @NonNull View from,
+            @NonNull View to
+    );
+
+    // final so no erased type info is accessed
     @NonNull
     @Override
-    public ChangeCallback animate(
+    public final ChangeCallback apply(
+            boolean reverse,
+            @NonNull ScreenManager manager,
+            @NonNull Screen from,
+            @NonNull Screen to,
+            @NonNull Runnable endAction
+    ) {
+        return apply(reverse, manager.container(), from.view(), to.view(), endAction);
+    }
+
+    @NonNull
+    protected ChangeCallback apply(
+            boolean reverse,
             @NonNull ViewGroup container,
             @NonNull View from,
             @NonNull View to,
             @NonNull Runnable endAction
     ) {
-
         final ChangeCallback changeCallback;
 
         if (isReady(from, to)) {
-            changeCallback = animateNow(container, from, to, endAction);
+            changeCallback = animateNow(reverse, container, from, to, endAction);
         } else {
-            changeCallback = animateWhenReady(container, from, to, endAction);
+            changeCallback = animateWhenReady(reverse, container, from, to, endAction);
         }
 
         return changeCallback;
@@ -44,20 +72,21 @@ public abstract class AbsChange implements Change {
 
     @NonNull
     protected ChangeCallback animateNow(
+            final boolean reverse,
             @NonNull final ViewGroup container,
             @NonNull final View from,
             @NonNull final View to,
             @NonNull final Runnable endAction
     ) {
 
-        applyStartValues(container, from, to);
+        applyStartValues(reverse, container, from, to);
 
-        startAnimation(container, from, to, endAction);
+        startAnimation(reverse, container, from, to, endAction);
 
         return new ChangeCallback() {
             @Override
             public void cancel() {
-                cancelAnimation(container, from, to);
+                cancelAnimation(reverse, container, from, to);
                 endAction.run();
             }
         };
@@ -65,6 +94,7 @@ public abstract class AbsChange implements Change {
 
     @NonNull
     protected ChangeCallback animateWhenReady(
+            final boolean reverse,
             @NonNull final ViewGroup container,
             @NonNull final View from,
             @NonNull final View to,
@@ -80,11 +110,10 @@ public abstract class AbsChange implements Change {
                     started.mark = true;
                     removeOnPreDrawListener(from, this);
                     removeOnPreDrawListener(to, this);
-                    applyStartValues(container, from, to);
-                    startAnimation(container, from, to, endAction);
-                    return true;
+                    applyStartValues(reverse, container, from, to);
+                    startAnimation(reverse, container, from, to, endAction);
                 }
-                return false;
+                return true;
             }
         };
 
@@ -95,7 +124,7 @@ public abstract class AbsChange implements Change {
             @Override
             public void cancel() {
                 if (started.mark) {
-                    cancelAnimation(container, from, to);
+                    cancelAnimation(reverse, container, from, to);
                 } else {
                     removeOnPreDrawListener(from, listener);
                     removeOnPreDrawListener(to, listener);

@@ -15,9 +15,8 @@ import java.util.Map;
 
 import ru.noties.history.History;
 import ru.noties.history.screen.change.ChangeController;
+import ru.noties.history.screen.change.ChangeControllerNoOp;
 import ru.noties.history.screen.plugin.Plugin;
-import ru.noties.history.screen.transition.TransitionController;
-import ru.noties.history.screen.transition.TransitionNoOp;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class ScreenManagerBuilder<K extends Enum<K>> {
@@ -107,7 +106,7 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
 
         final ChangeController<K> controller;
         if (changeController == null) {
-            controller = TransitionController.create(TransitionNoOp.instance(), TransitionNoOp.instance());
+            controller = ChangeControllerNoOp.create();
         } else {
             controller = changeController;
         }

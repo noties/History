@@ -6,14 +6,14 @@ import android.support.annotation.NonNull;
 import ru.noties.history.screen.Screen;
 import ru.noties.history.screen.ScreenManager;
 
-public interface Change<K extends Enum<K>> {
+public interface SingleChange<K extends Enum<K>> {
 
     @NonNull
     ChangeCallback apply(
             boolean reverse,
             @NonNull ScreenManager<K> manager,
-            @NonNull Screen<K, ? extends Parcelable> from,
-            @NonNull Screen<K, ? extends Parcelable> to,
+            @NonNull Screen<K, ? extends Parcelable> screen,
             @NonNull Runnable endAction
     );
+
 }
