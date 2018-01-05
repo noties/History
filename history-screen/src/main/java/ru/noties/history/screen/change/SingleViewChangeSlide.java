@@ -77,7 +77,7 @@ public class SingleViewChangeSlide extends SingleViewChange {
         } else if ((dir & RIGHT) == RIGHT) {
             resolver = new Right(from);
         } else if ((dir & BOTTOM) == BOTTOM) {
-            resolver = null;
+            resolver = new Bottom(from);
         } else {
             resolver = new Left(from);
         }
@@ -196,6 +196,39 @@ public class SingleViewChangeSlide extends SingleViewChange {
 
             view.animate()
                     .translationX(reverse ? view.getWidth() : .0F)
+                    .setDuration(duration)
+                    .withEndAction(endAction)
+                    .start();
+        }
+    }
+
+    private class Bottom implements Resolver {
+
+        private final boolean from;
+
+        Bottom(boolean from) {
+            this.from = from;
+        }
+
+        @Override
+        public void applyStart(boolean reverse, @NonNull View view) {
+
+            if (!from) {
+                reverse = !reverse;
+            }
+
+            view.setTranslationY(reverse ? view.getHeight() : 0);
+        }
+
+        @Override
+        public void animate(boolean reverse, @NonNull View view, @NonNull Runnable endAction) {
+
+            if (!from) {
+                reverse = !reverse;
+            }
+
+            view.animate()
+                    .translationY(reverse ? 0 : view.getHeight())
                     .setDuration(duration)
                     .withEndAction(endAction)
                     .start();

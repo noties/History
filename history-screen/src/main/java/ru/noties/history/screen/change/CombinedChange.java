@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import ru.noties.history.screen.Screen;
 import ru.noties.history.screen.ScreenManager;
 
-public class CombinedChange<K extends Enum<K>> implements Change<K> {
+public class CombinedChange<K extends Enum<K>> extends Change<K> {
 
     @NonNull
     public static <K extends Enum<K>> CombinedChange<K> create(
@@ -19,6 +19,7 @@ public class CombinedChange<K extends Enum<K>> implements Change<K> {
     private final SingleChange<K> fromChange;
     private final SingleChange<K> toChange;
 
+    @SuppressWarnings("WeakerAccess")
     public CombinedChange(@NonNull SingleChange<K> fromChange, @NonNull SingleChange<K> toChange) {
         this.fromChange = fromChange;
         this.toChange = toChange;
@@ -26,15 +27,13 @@ public class CombinedChange<K extends Enum<K>> implements Change<K> {
 
     @NonNull
     @Override
-    public ChangeCallback apply(
+    protected ChangeCallback applyNow(
             boolean reverse,
             @NonNull ScreenManager<K> manager,
             @NonNull Screen<K, ? extends Parcelable> from,
             @NonNull Screen<K, ? extends Parcelable> to,
             @NonNull final Runnable endAction
     ) {
-
-        // todo: actually we must wait for both views to be available otherwise visual glitch might appear
 
         final Runnable combinedAction = new Runnable() {
 
@@ -49,7 +48,7 @@ public class CombinedChange<K extends Enum<K>> implements Change<K> {
         };
 
         return new CombinedChangeCallback()
-                .from(fromChange.apply(reverse, manager, from, combinedAction))
-                .to(toChange.apply(reverse, manager, to, combinedAction));
+                .from(fromChange.apply(reverse, manager, reverse ? to : from, combinedAction))
+                .to(toChange.apply(reverse, manager, reverse ? from : to, combinedAction));
     }
 }

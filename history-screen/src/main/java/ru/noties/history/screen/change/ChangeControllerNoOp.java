@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 import ru.noties.history.screen.Screen;
 import ru.noties.history.screen.ScreenManager;
 
-public class ChangeControllerNoOp<K extends Enum<K>> extends ChangeController<K> {
+public final class ChangeControllerNoOp<K extends Enum<K>> extends ChangeController<K> {
 
     @NonNull
     public static <K extends Enum<K>> ChangeControllerNoOp<K> create() {
@@ -24,5 +24,8 @@ public class ChangeControllerNoOp<K extends Enum<K>> extends ChangeController<K>
     @Override
     public ChangeCallback back(@NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @Nullable Screen<K, ? extends Parcelable> to, @NonNull Runnable endAction) {
         return ChangeCallbackNoOp.noOp(endAction);
+    }
+
+    private ChangeControllerNoOp() {
     }
 }

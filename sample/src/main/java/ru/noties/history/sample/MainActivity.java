@@ -64,7 +64,7 @@ public class MainActivity extends Activity {
         final ChangeController<ScreenKey> changeController = ChangeController.builder(ScreenKey.class)
                 .when(ScreenKey.SPLASH, ScreenKey.START, ViewChangeAlpha.create(250L))
                 .whenTo(ScreenKey.START, ViewChangeSlide.fromBottom(250L))
-                .whenTo(ScreenKey.DIALOG, SingleViewChangeSlide.toLeft(250L), SingleViewChangeSlide.fromRight(250L))
+                .whenTo(ScreenKey.DIALOG, SingleViewChangeSlide.toTop(250L), SingleViewChangeSlide.fromBottom(250L))
                 .build();
 
         final VisibilityProvider<ScreenKey> visibilityProvider = VisibilityProvider.builder(ScreenKey.class)

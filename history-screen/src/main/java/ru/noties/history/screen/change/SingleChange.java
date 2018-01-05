@@ -15,5 +15,4 @@ public interface SingleChange<K extends Enum<K>> {
             @NonNull Screen<K, ? extends Parcelable> screen,
             @NonNull Runnable endAction
     );
-
 }

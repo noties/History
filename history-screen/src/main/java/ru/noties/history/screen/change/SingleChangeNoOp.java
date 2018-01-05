@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import ru.noties.history.screen.Screen;
 import ru.noties.history.screen.ScreenManager;
 
-public class SingleChangeNoOp<K extends Enum<K>> implements SingleChange<K> {
+public final class SingleChangeNoOp<K extends Enum<K>> implements SingleChange<K> {
 
     @NonNull
     public static <K extends Enum<K>> SingleChangeNoOp<K> instance() {
@@ -26,4 +26,7 @@ public class SingleChangeNoOp<K extends Enum<K>> implements SingleChange<K> {
     }
 
     private static final SingleChangeNoOp INSTANCE = new SingleChangeNoOp();
+
+    private SingleChangeNoOp() {
+    }
 }

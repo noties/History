@@ -2,6 +2,7 @@ package ru.noties.history.screen.change;
 
 import android.support.annotation.NonNull;
 
+@SuppressWarnings("WeakerAccess")
 public abstract class ChangeCallbackNoOp {
 
     @NonNull

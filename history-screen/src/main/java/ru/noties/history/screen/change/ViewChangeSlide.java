@@ -6,9 +6,6 @@ import android.view.ViewGroup;
 
 public class ViewChangeSlide extends ViewChange {
 
-    // todo: check if reverse are just wrong, it is not clear what happens
-    // todo: how can we always receive correct view to animate?
-
     @NonNull
     public static <K extends Enum<K>> Change<K> fromLeft(long duration) {
         //noinspection unchecked
@@ -76,8 +73,8 @@ public class ViewChangeSlide extends ViewChange {
     protected void applyStartValues(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
         resolver.applyStart(
                 reverse,
-                reverse ? to : from,
-                reverse ? from : to
+                from,
+                to
         );
     }
 
@@ -91,8 +88,8 @@ public class ViewChangeSlide extends ViewChange {
     ) {
         resolver.animate(
                 reverse,
-                reverse ? to : from,
-                reverse ? from : to,
+                from,
+                to,
                 endAction
         );
     }

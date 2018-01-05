@@ -6,8 +6,9 @@ import android.support.annotation.NonNull;
 import ru.noties.history.screen.Screen;
 import ru.noties.history.screen.ScreenManager;
 
-public class ChangeNoOp<K extends Enum<K>> implements Change<K> {
+public final class ChangeNoOp<K extends Enum<K>> extends Change<K> {
 
+    @SuppressWarnings("WeakerAccess")
     @NonNull
     public static <K extends Enum<K>> ChangeNoOp<K> instance() {
         //noinspection unchecked
@@ -16,7 +17,7 @@ public class ChangeNoOp<K extends Enum<K>> implements Change<K> {
 
     @NonNull
     @Override
-    public ChangeCallback apply(
+    protected ChangeCallback applyNow(
             boolean reverse,
             @NonNull ScreenManager<K> manager,
             @NonNull Screen<K, ? extends Parcelable> from,
@@ -26,5 +27,13 @@ public class ChangeNoOp<K extends Enum<K>> implements Change<K> {
         return ChangeCallbackNoOp.noOp(endAction);
     }
 
+    @Override
+    protected boolean isReady(@NonNull Screen<K, ? extends Parcelable> screen) {
+        return true;
+    }
+
     private static final ChangeNoOp INSTANCE = new ChangeNoOp();
+
+    private ChangeNoOp() {
+    }
 }
