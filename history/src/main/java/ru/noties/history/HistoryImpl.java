@@ -224,6 +224,20 @@ class HistoryImpl<K extends Enum<K>> extends History<K> {
         return length() > 0;
     }
 
+    @Override
+    public boolean clear() {
+        final boolean result;
+        if (entries.size() > 0) {
+            final List<Entry<K>> list = Collections.unmodifiableList(new ArrayList<>(entries));
+            entries.clear();
+            observer.onEntriesPopped(list, null);
+            result = true;
+        } else {
+            result = false;
+        }
+        return result;
+    }
+
     private HistoryState saveState(@Nullable Filter<K> filter) {
 
         final int length = length();

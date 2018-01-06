@@ -20,6 +20,7 @@ import ru.noties.history.screen.change.SingleChangeNoOp;
 import ru.noties.history.screen.change.ViewChangeAlpha;
 import ru.noties.history.screen.change.ViewChangeSlide;
 import ru.noties.history.screen.plugin.ActivityResultPlugin;
+import ru.noties.history.screen.plugin.PermissionResultPlugin;
 import ru.noties.requirements.EventSource;
 
 public class MainActivity extends Activity {
@@ -36,7 +37,9 @@ public class MainActivity extends Activity {
 
     private final ActivityResultPlugin activityResultPlugin = ActivityResultPlugin.create();
 
-    private EventSource eventSource = EventSource.create();
+    private final PermissionResultPlugin permissionResultPlugin = PermissionResultPlugin.create();
+
+    private final EventSource eventSource = EventSource.create();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,7 @@ public class MainActivity extends Activity {
                 .visibilityProvider(visibilityProvider)
                 .changeController(changeController)
                 .addPlugin(activityResultPlugin)
+                .addPlugin(permissionResultPlugin)
                 .changeLock(screenLayout)
                 .build(this, screenLayout);
 
@@ -98,13 +102,14 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        activityResultPlugin.onActivityResult(requestCode, resultCode, data);
+        if (!activityResultPlugin.onActivityResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (!eventSource.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
+        if (!permissionResultPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }

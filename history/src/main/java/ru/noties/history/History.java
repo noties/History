@@ -124,4 +124,6 @@ public abstract class History<K extends Enum<K>> {
     // false will be returned if nothing was restored
     // throws if history is not empty
     public abstract boolean restore(@Nullable HistoryState historyState) throws IllegalStateException;
+
+    public abstract boolean clear();
 }

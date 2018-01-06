@@ -9,8 +9,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -55,27 +53,6 @@ public class HistoryTest {
         //noinspection ConstantConditions
         assertEquals(0, history.popTo(new Entry<Key>(Key.FIRST, null)).size());
     }
-
-//    @Test
-//    public void empty_instance_remove() {
-//        //noinspection ConstantConditions
-//        assertFalse(history.remove(new Entry<Key>(Key.FIRST, null)));
-//    }
-//
-//    @Test
-//    public void empty_instance_remove_list_empty() {
-//        assertEquals(0, history.remove(Collections.<Entry<Key>>emptyList()));
-//    }
-
-//    @Test
-//    public void empty_instance_remove_list() {
-//        //noinspection ConstantConditions
-//        final List<Entry<Key>> list = Arrays.asList(
-//                new Entry<Key>(Key.FIRST, null),
-//                new Entry<Key>(Key.SECOND, null)
-//        );
-//        assertEquals(0, history.remove(list));
-//    }
 
     @Test
     public void empty_instance_first() {
@@ -122,6 +99,10 @@ public class HistoryTest {
         }
     }
 
+    @Test
+    public void empty_instance_clear() {
+        assertFalse(history.clear());
+    }
 
     @Test
     public void entry_def_reuse_throws() {
