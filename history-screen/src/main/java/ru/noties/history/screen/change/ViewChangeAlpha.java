@@ -21,20 +21,20 @@ public class ViewChangeAlpha extends ViewChange {
 
     @Override
     protected void applyStartValues(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
-        from.setAlpha(1.F);
-        to.setAlpha(.0F);
+        from.setAlpha(reverse ? .0F : 1.F);
+        to.setAlpha(reverse ? 1.F : .0F);
     }
 
     @Override
     protected void startAnimation(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to, @NonNull Runnable endAction) {
 
         from.animate()
-                .alpha(.0F)
+                .alpha(reverse ? 1.F : .0F)
                 .setDuration(duration)
                 .start();
 
         to.animate()
-                .alpha(1.F)
+                .alpha(reverse ? .0F : 1.F)
                 .setDuration(duration)
                 .withEndAction(endAction)
                 .start();

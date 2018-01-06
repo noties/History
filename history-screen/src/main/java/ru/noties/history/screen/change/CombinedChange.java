@@ -48,7 +48,7 @@ public class CombinedChange<K extends Enum<K>> extends Change<K> {
         };
 
         return new CombinedChangeCallback()
-                .from(fromChange.apply(reverse, manager, reverse ? to : from, combinedAction))
-                .to(toChange.apply(reverse, manager, reverse ? from : to, combinedAction));
+                .from(fromChange.apply(reverse, manager, from, combinedAction))
+                .to(toChange.apply(reverse, manager, to, combinedAction));
     }
 }

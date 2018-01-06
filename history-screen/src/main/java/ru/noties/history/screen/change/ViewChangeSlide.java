@@ -113,20 +113,27 @@ public class ViewChangeSlide extends ViewChange {
 
         @Override
         public void applyStart(boolean reverse, @NonNull View from, @NonNull View to) {
-            from.setTranslationX(.0F);
-            to.setTranslationX(reverse ? to.getWidth() : -to.getWidth());
+
+            final float fromX = reverse ? from.getWidth() : 0;
+            final float toX = reverse ? 0 : -to.getWidth();
+
+            from.setTranslationX(fromX);
+            to.setTranslationX(toX);
         }
 
         @Override
         public void animate(boolean reverse, @NonNull View from, @NonNull View to, @NonNull Runnable endAction) {
 
+            final float fromX = reverse ? 0 : from.getWidth();
+            final float toX = reverse ? -to.getWidth() : 0;
+
             from.animate()
-                    .translationX(reverse ? -from.getWidth() : from.getWidth())
+                    .translationX(fromX)
                     .setDuration(duration)
                     .start();
 
             to.animate()
-                    .translationX(.0F)
+                    .translationX(toX)
                     .setDuration(duration)
                     .withEndAction(endAction)
                     .start();
@@ -137,20 +144,27 @@ public class ViewChangeSlide extends ViewChange {
 
         @Override
         public void applyStart(boolean reverse, @NonNull View from, @NonNull View to) {
-            from.setTranslationY(.0F);
-            to.setTranslationY(reverse ? to.getHeight() : -to.getHeight());
+
+            final float fromY = reverse ? from.getHeight() : 0;
+            final float toY = reverse ? 0 : -to.getHeight();
+
+            from.setTranslationY(fromY);
+            to.setTranslationY(toY);
         }
 
         @Override
         public void animate(boolean reverse, @NonNull View from, @NonNull View to, @NonNull Runnable endAction) {
 
+            final float fromY = reverse ? 0 : from.getHeight();
+            final float toY = reverse ? -to.getHeight() : 0;
+
             from.animate()
-                    .translationY(reverse ? -from.getHeight() : from.getHeight())
+                    .translationY(fromY)
                     .setDuration(duration)
                     .start();
 
             to.animate()
-                    .translationY(.0F)
+                    .translationY(toY)
                     .setDuration(duration)
                     .withEndAction(endAction)
                     .start();
@@ -161,20 +175,27 @@ public class ViewChangeSlide extends ViewChange {
 
         @Override
         public void applyStart(boolean reverse, @NonNull View from, @NonNull View to) {
-            from.setTranslationX(.0F);
-            to.setTranslationX(reverse ? -to.getWidth() : to.getWidth());
+
+            final float fromX = reverse ? -from.getWidth() : 0;
+            final float toX = reverse ? 0 : to.getWidth();
+
+            from.setTranslationX(fromX);
+            to.setTranslationX(toX);
         }
 
         @Override
         public void animate(boolean reverse, @NonNull View from, @NonNull View to, @NonNull Runnable endAction) {
 
+            final float fromX = reverse ? 0 : -from.getWidth();
+            final float toX = reverse ? to.getWidth() : 0;
+
             from.animate()
-                    .translationX(reverse ? from.getWidth() : -from.getWidth())
+                    .translationX(fromX)
                     .setDuration(duration)
                     .start();
 
             to.animate()
-                    .translationX(.0F)
+                    .translationX(toX)
                     .setDuration(duration)
                     .withEndAction(endAction)
                     .start();
@@ -185,20 +206,27 @@ public class ViewChangeSlide extends ViewChange {
 
         @Override
         public void applyStart(boolean reverse, @NonNull View from, @NonNull View to) {
-            from.setTranslationY(.0F);
-            to.setTranslationY(reverse ? -to.getHeight() : to.getHeight());
+
+            final float fromY = reverse ? -from.getHeight() : 0;
+            final float toY = reverse ? 0 : to.getHeight();
+
+            from.setTranslationY(fromY);
+            to.setTranslationY(toY);
         }
 
         @Override
         public void animate(boolean reverse, @NonNull View from, @NonNull View to, @NonNull Runnable endAction) {
 
+            final float fromY = reverse ? 0 : -from.getHeight();
+            final float toY = reverse ? to.getHeight() : 0;
+
             from.animate()
-                    .translationY(reverse ? from.getHeight() : -from.getHeight())
+                    .translationY(fromY)
                     .setDuration(duration)
                     .start();
 
             to.animate()
-                    .translationY(.0F)
+                    .translationY(toY)
                     .setDuration(duration)
                     .withEndAction(endAction)
                     .start();

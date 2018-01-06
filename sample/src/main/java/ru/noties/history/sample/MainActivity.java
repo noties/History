@@ -17,6 +17,8 @@ import ru.noties.history.screen.Visibility;
 import ru.noties.history.screen.VisibilityProvider;
 import ru.noties.history.screen.change.ChangeController;
 import ru.noties.history.screen.change.SingleChangeNoOp;
+import ru.noties.history.screen.change.SingleViewChangeAlpha;
+import ru.noties.history.screen.change.SingleViewChangeSlide;
 import ru.noties.history.screen.change.ViewChangeAlpha;
 import ru.noties.history.screen.change.ViewChangeSlide;
 import ru.noties.history.screen.plugin.ActivityResultPlugin;
@@ -58,7 +60,8 @@ public class MainActivity extends Activity {
 
         final ChangeController<ScreenKey> changeController = ChangeController.builder(ScreenKey.class)
                 .when(ScreenKey.SPLASH, ScreenKey.START, ViewChangeAlpha.create(250L))
-                .whenTo(ScreenKey.START, ViewChangeSlide.fromBottom(250L))
+//                .whenTo(ScreenKey.START, ViewChangeSlide.fromBottom(250L))
+                .whenTo(ScreenKey.START, SingleViewChangeAlpha.from(250L), SingleViewChangeSlide.fromRight(250L))
                 .whenTo(ScreenKey.DIALOG, SingleChangeNoOp.instance(), DialogViewChange.create(250L))
                 .build();
 

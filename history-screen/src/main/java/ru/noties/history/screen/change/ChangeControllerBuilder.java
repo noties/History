@@ -121,7 +121,7 @@ public class ChangeControllerBuilder<K extends Enum<K>> {
         @Override
         public ChangeCallback back(@NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @Nullable Screen<K, ? extends Parcelable> to, @NonNull Runnable endAction) {
             return to != null
-                    ? find(to.key, from.key).apply(true, manager, from, to, endAction)
+                    ? find(to.key, from.key).apply(true, manager, to, from, endAction)
                     : ChangeCallbackNoOp.noOp(endAction);
         }
 
