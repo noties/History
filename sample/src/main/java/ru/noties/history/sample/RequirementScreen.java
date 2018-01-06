@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import ru.noties.debug.Debug;
 import ru.noties.history.EmptyState;
 import ru.noties.history.Entry;
+import ru.noties.history.screen.LifecycleEvent;
 import ru.noties.history.screen.Screen;
-import ru.noties.history.screen.ScreenLifecycle;
 import ru.noties.history.screen.ScreenManager;
 import ru.noties.history.screen.plugin.ActivityResultPlugin;
 import ru.noties.requirements.EventSource;
@@ -47,7 +47,7 @@ public class RequirementScreen extends Screen<ScreenKey, EmptyState> implements 
 
         manager.plugin(ActivityResultPlugin.class)
                 .observeAll(eventSource::onActivityResult)
-                .accept(s -> lifecycle().on(ScreenLifecycle.Event.DESTROY, s::unsubscribe));
+                .accept(s -> lifecycle().on(LifecycleEvent.DESTROY, s::unsubscribe));
     }
 
     @Override

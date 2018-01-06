@@ -14,7 +14,7 @@ class ScreenLifecycleImpl<K extends Enum<K>> implements ScreenLifecycleCallbacks
 
     private final Screen<K, ? extends Parcelable> screen;
 
-    private final Map<Event, Listeners<Action>> eventActions = new EnumMap<>(Event.class);
+    private final Map<LifecycleEvent, Listeners<Action>> eventActions = new EnumMap<>(LifecycleEvent.class);
 
 
     ScreenLifecycleImpl(@NonNull Screen<K, ? extends Parcelable> screen) {
@@ -28,31 +28,31 @@ class ScreenLifecycleImpl<K extends Enum<K>> implements ScreenLifecycleCallbacks
 
     @Override
     public void destroy(@NonNull Screen<K, ? extends Parcelable> screen) {
-        dispatch(screen, Event.DESTROY);
+        dispatch(screen, LifecycleEvent.DESTROY);
     }
 
     @Override
     public void onAttach(@NonNull Screen<K, ? extends Parcelable> screen, @NonNull View view) {
-        dispatch(screen, Event.ATTACH);
+        dispatch(screen, LifecycleEvent.ATTACH);
     }
 
     @Override
     public void onDetach(@NonNull Screen<K, ? extends Parcelable> screen, @NonNull View view) {
-        dispatch(screen, Event.DETACH);
+        dispatch(screen, LifecycleEvent.DETACH);
     }
 
     @Override
     public void onActive(@NonNull Screen<K, ? extends Parcelable> screen) {
-        dispatch(screen, Event.ACTIVE);
+        dispatch(screen, LifecycleEvent.ACTIVE);
     }
 
     @Override
     public void onInactive(@NonNull Screen<K, ? extends Parcelable> screen) {
-        dispatch(screen, Event.INACTIVE);
+        dispatch(screen, LifecycleEvent.INACTIVE);
     }
 
     @Override
-    public void on(@NonNull Event event, @NonNull Action action) {
+    public void on(@NonNull LifecycleEvent event, @NonNull Action action) {
         Listeners<Action> actions = eventActions.get(event);
         if (actions == null) {
             actions = Listeners.create(3);
@@ -61,7 +61,7 @@ class ScreenLifecycleImpl<K extends Enum<K>> implements ScreenLifecycleCallbacks
         actions.add(action);
     }
 
-    private void dispatch(@NonNull Screen<K, ? extends Parcelable> screen, @NonNull Event event) {
+    private void dispatch(@NonNull Screen<K, ? extends Parcelable> screen, @NonNull LifecycleEvent event) {
 
         final Listeners<Action> actions = this.screen == screen
                 ? eventActions.get(event)

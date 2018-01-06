@@ -8,26 +8,36 @@ import android.view.ViewGroup;
 public class SingleViewChangeAlpha extends SingleViewChange {
 
     @NonNull
-    public static <K extends Enum<K>> SingleChange<K> create(long duration) {
+    public static <K extends Enum<K>> SingleChange<K> to(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeAlpha(duration);
+        return new SingleViewChangeAlpha(duration, .0F, 1.F);
+    }
+
+    @NonNull
+    public static <K extends Enum<K>> SingleChange<K> from(long duration) {
+        //noinspection unchecked
+        return new SingleViewChangeAlpha(duration, 1.F, .0F);
     }
 
     private final long duration;
+    private final float start;
+    private final float end;
 
-    public SingleViewChangeAlpha(long duration) {
+    public SingleViewChangeAlpha(long duration, float start, float end) {
         this.duration = duration;
+        this.start = start;
+        this.end = end;
     }
 
     @Override
     protected void applyStartValues(boolean reverse, @NonNull ViewGroup container, @NonNull View view) {
-        view.setAlpha(reverse ? 1.F : .0F);
+        view.setAlpha(reverse ? end : start);
     }
 
     @Override
     protected void startAnimation(boolean reverse, @NonNull ViewGroup container, @NonNull View view, @NonNull Runnable endAction) {
         view.animate()
-                .alpha(reverse ? .0F : 1.F)
+                .alpha(reverse ? start : end)
                 .setDuration(duration)
                 .withEndAction(endAction)
                 .start();
