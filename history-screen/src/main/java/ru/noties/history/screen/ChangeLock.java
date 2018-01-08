@@ -5,6 +5,7 @@ package ru.noties.history.screen;
  * disabling all touch events
  *
  * @see ScreenLayout
+ * @see ScreenManagerBuilder#changeLock(ChangeLock)
  */
 public interface ChangeLock {
 

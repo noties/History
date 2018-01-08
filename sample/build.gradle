@@ -23,5 +23,5 @@ dependencies {
     implementation project(':history')
     implementation project(':history-screen')
     implementation 'ru.noties:debug:3.0.0@jar'
-    implementation 'ru.noties:requirements:1.0.1'
+    implementation RECYCLER_VIEW
 }

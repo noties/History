@@ -4,6 +4,9 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+/**
+ * Adapter implementation of {@link ScreenLifecycleCallbacks}
+ */
 @SuppressWarnings("unused")
 public abstract class ScreenLifecycleCallbacksAdapter<K extends Enum<K>> implements ScreenLifecycleCallbacks<K> {
     @Override

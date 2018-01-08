@@ -21,6 +21,12 @@ import ru.noties.history.screen.plugin.Plugin;
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class ScreenManagerBuilder<K extends Enum<K>> {
 
+    /**
+     * Required argument.
+     *
+     * @param history {@link History}
+     * @return self for chaining
+     */
     @Required
     @NonNull
     public ScreenManagerBuilder<K> history(@NonNull History<K> history) {
@@ -28,6 +34,13 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         return this;
     }
 
+    /**
+     * Required argument.
+     *
+     * @param screenProvider {@link ScreenProvider}
+     * @return self for chaining
+     * @see ScreenProvider#builder(Class)
+     */
     @Required
     @NonNull
     public ScreenManagerBuilder<K> screenProvider(@NonNull ScreenProvider<K> screenProvider) {
@@ -35,31 +48,71 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         return this;
     }
 
+    /**
+     * By default does not animate any changes (all changes are happen immediately)
+     *
+     * @param changeController {@link ChangeController}
+     * @return self for chaining
+     * @see ChangeController#builder(Class)
+     */
     @NonNull
     public ScreenManagerBuilder<K> changeController(@NonNull ChangeController<K> changeController) {
         this.changeController = changeController;
         return this;
     }
 
+    /**
+     * By default will detach all inactive screens
+     *
+     * @param visibilityProvider {@link VisibilityProvider}
+     * @return self for chaining
+     * @see VisibilityProvider#builder(Class)
+     * @see VisibilityProvider#create(Visibility)
+     */
     @NonNull
     public ScreenManagerBuilder<K> visibilityProvider(@NonNull VisibilityProvider<K> visibilityProvider) {
         this.visibilityProvider = visibilityProvider;
         return this;
     }
 
+    /**
+     * Sets specific LayoutInflater to be used when creating a {@link Screen} View. If not provided
+     * {@code activity.getLayoutInflater()} will be used each time a view creation is required.
+     *
+     * @param inflater LayoutInflater to be used
+     * @return self for chaining
+     */
     @NonNull
     public ScreenManagerBuilder<K> layoutInflater(@NonNull LayoutInflater inflater) {
         this.layoutInflater = inflater;
         return this;
     }
 
-    // by default FALSE
+    /**
+     * By default does not detach last view
+     *
+     * @param detachLastView a flag indicating if last view in layout must be detached. Introduced
+     *                       so there is no visual glitch when finishing activity (screen is destroyed
+     *                       but kept in layout whilst activity animates self destroy)
+     * @return self for chaining
+     */
     @NonNull
     public ScreenManagerBuilder<K> detachLastView(boolean detachLastView) {
         this.detachLastView = detachLastView;
         return this;
     }
 
+    /**
+     * By default has no plugins registered
+     *
+     * @param plugin {@link Plugin} to register
+     * @return self for chaining
+     * @see ScreenManager#plugin(Class)
+     * @see Plugin
+     * @see ru.noties.history.screen.plugin.ActivityResultPlugin
+     * @see ru.noties.history.screen.plugin.PermissionResultPlugin
+     * @see ru.noties.history.screen.plugin.OnBackPressedPlugin
+     */
     @NonNull
     public ScreenManagerBuilder<K> addPlugin(@NonNull Plugin plugin) {
 
@@ -79,6 +132,13 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         return this;
     }
 
+    /**
+     * By default has no registered plugins
+     *
+     * @param plugins a collection of {@link Plugin} tp register
+     * @return self for chaining
+     * @see #addPlugin(Plugin)
+     */
     @NonNull
     public ScreenManagerBuilder<K> addPlugins(@NonNull Collection<? extends Plugin> plugins) {
         for (Plugin plugin : plugins) {
@@ -88,6 +148,13 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         return this;
     }
 
+    /**
+     * By default has not change lock
+     *
+     * @param changeLock {@link ChangeLock}
+     * @return self for chaining
+     * @see ScreenLayout
+     */
     @NonNull
     public ScreenManagerBuilder<K> changeLock(@NonNull ChangeLock changeLock) {
         this.changeLock = changeLock;

@@ -1,3 +1,11 @@
 <resources>
+
     <string name="app_name">History</string>
+
+    <string name="content_pattern"><![CDATA[[%1$d]]]></string>
+
+    <string name="operation_push">Push</string>
+    <string name="operation_replace">Replace</string>
+    <string name="operation_pop">Pop</string>
+
 </resources>

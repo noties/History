@@ -9,12 +9,21 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @see ScreenManagerBuilder#screenProvider(ScreenProvider)
+ * @see ScreenProvider#builder(Class)
+ */
 public class ScreenProviderBuilder<K extends Enum<K>> {
 
     public interface Action<K extends Enum<K>, S extends Parcelable> {
 
         @NonNull
         Screen<K, S> provide(@NonNull K key, @NonNull S state);
+    }
+
+    @NonNull
+    public static <K extends Enum<K>> ScreenProviderBuilder<K> create(@NonNull Class<K> type) {
+        return new ScreenProviderBuilder<>(type);
     }
 
     private final Class<K> type;
@@ -26,6 +35,12 @@ public class ScreenProviderBuilder<K extends Enum<K>> {
         this.actions = new EnumMap<>(type);
     }
 
+    /**
+     * @param key    to register
+     * @param action {@link Action} to provide a {@link Screen}
+     * @return self for chaining
+     * @throws IllegalStateException if specified `key` already has registered {@link Screen}
+     */
     @NonNull
     public <S extends Parcelable> ScreenProviderBuilder<K> register(
             @NonNull K key,
@@ -40,6 +55,10 @@ public class ScreenProviderBuilder<K extends Enum<K>> {
         return this;
     }
 
+    /**
+     * @return {@link ScreenProvider}
+     * @throws IllegalStateException if not all enum constants have registered {@link Action}
+     */
     @NonNull
     public ScreenProvider<K> build() throws IllegalStateException {
         validate();

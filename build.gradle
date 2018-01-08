@@ -41,6 +41,7 @@ ext {
 
     final def supportVersion = '26.1.0'
     SUPPORT_ANNOTATIONS = "com.android.support:support-annotations:$supportVersion"
+    RECYCLER_VIEW = "com.android.support:recyclerview-v7:$supportVersion"
 
     LISTENERS = 'ru.noties:listeners:1.0.1'
 

@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ru.noties.history.screen.ScreenLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/screen_layout"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" />
+    android:layout_height="match_parent">
+
+    <ru.noties.history.screen.ScreenLayout
+        android:id="@+id/screen_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="56dip" />
+
+    <ru.noties.history.sample.HistoryBar
+        android:id="@+id/history_bar"
+        android:layout_width="match_parent"
+        android:layout_height="56dip"
+        android:layout_gravity="bottom" />
+
+</FrameLayout>

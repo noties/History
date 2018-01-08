@@ -5,14 +5,29 @@ import android.support.annotation.Nullable;
 
 import ru.noties.history.Entry;
 
+/**
+ * @see ScreenManagerBuilder#visibilityProvider(VisibilityProvider)
+ */
 public abstract class VisibilityProvider<K extends Enum<K>> {
 
-    // will use the same for all entries (null to detach)
+    /**
+     * Create default {@link VisibilityProvider} that uses provided {@link Visibility} for all the
+     * inactive screens (use `null` for a screen to be detached)
+     *
+     * @param visibility {@link Visibility} to be used for inactive screen (or `null` if screen must be detached)
+     * @return {@link VisibilityProvider}
+     */
     @NonNull
     public static <K extends Enum<K>> VisibilityProvider<K> create(@Nullable Visibility visibility) {
         return new Impl<>(visibility);
     }
 
+    /**
+     * Factory method to obtain an instance of {@link VisibilityProviderBuilder}
+     *
+     * @param type of the key
+     * @return {@link VisibilityProviderBuilder}
+     */
     @SuppressWarnings("unused")
     @NonNull
     public static <K extends Enum<K>> VisibilityProviderBuilder<K> builder(@NonNull Class<K> type) {

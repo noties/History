@@ -24,11 +24,11 @@ public abstract class ViewUtils {
      * @see #whenReadyBlocking(View, WhenReady)
      */
     public static void whenReady(@NonNull final View view, @NonNull final WhenReady whenReady) {
-        if (view.getWidth() == 0) {
+        if (!isReady(view)) {
             view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    if (view.getWidth() != 0) {
+                    if (isReady(view)) {
                         view.getViewTreeObserver().removeOnPreDrawListener(this);
                         whenReady.apply();
                     }
@@ -50,11 +50,11 @@ public abstract class ViewUtils {
      * @see #whenReady(View, WhenReady)
      */
     public static void whenReadyBlocking(@NonNull final View view, @NonNull final WhenReady whenReady) {
-        if (view.getWidth() == 0) {
+        if (!isReady(view)) {
             view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    if (view.getWidth() != 0) {
+                    if (isReady(view)) {
                         view.getViewTreeObserver().removeOnPreDrawListener(this);
                         whenReady.apply();
                         return true;

@@ -53,15 +53,13 @@ public abstract class ScreenManager<K extends Enum<K>> {
     public abstract Screen<K, ? extends Parcelable> findScreen(@NonNull Entry<K> entry);
 
 
-    // todo: isRestoring ?
-    // todo: clear ?
-
     @SuppressWarnings("UnusedReturnValue")
     @NonNull
     public abstract Subscription screenCallbacks(@NonNull ScreenLifecycleCallbacks<K> screenLifecycleCallbacks);
 
     @NonNull
     public abstract ScreenLifecycle screenLifecycle(@NonNull Screen<K, ? extends Parcelable> screen);
+
 
     public abstract boolean restoreState(@Nullable HistoryState state);
 
