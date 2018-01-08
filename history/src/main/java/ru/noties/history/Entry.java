@@ -11,6 +11,7 @@ public final class Entry<K extends Enum<K>> {
      *
      * @param key to identify this {@link Entry}
      * @return new instance of {@link Entry}
+     * @see EmptyState
      */
     @NonNull
     public static <K extends Enum<K>> EntryDef<K> create(@NonNull K key) {

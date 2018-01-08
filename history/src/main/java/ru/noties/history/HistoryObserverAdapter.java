@@ -5,6 +5,12 @@ import android.support.annotation.Nullable;
 
 import java.util.List;
 
+/**
+ * Adapter implementation of {@link ru.noties.history.History.Observer}
+ *
+ * @see ru.noties.history.History.Observer
+ * @see History#observe(History.Observer)
+ */
 @SuppressWarnings("unused")
 public abstract class HistoryObserverAdapter<K extends Enum<K>> implements History.Observer<K> {
     @Override

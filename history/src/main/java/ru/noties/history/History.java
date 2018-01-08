@@ -1,5 +1,7 @@
 package ru.noties.history;
 
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -8,22 +10,59 @@ import java.util.List;
 @SuppressWarnings({"unused", "UnusedReturnValue"})
 public abstract class History<K extends Enum<K>> {
 
+    /**
+     * Factory method to create a new instance of {@link History}
+     *
+     * @param keyType enum type of keys
+     * @return a new instance of {@link History}
+     */
     @NonNull
     public static <K extends Enum<K>> History<K> create(@NonNull Class<K> keyType) {
         return new HistoryImpl<>();
     }
 
+    /**
+     * Interface to listen for history changes
+     *
+     * @see #observe(Observer)
+     */
     public interface Observer<K extends Enum<K>> {
 
+        /**
+         * @param previous {@link Entry} or null if `current` is the first one
+         * @param current  {@link Entry} which becomes active
+         * @see #push(EntryDef)
+         */
         void onEntryPushed(@Nullable Entry<K> previous, @NonNull Entry<K> current);
 
+        /**
+         * @param previous {@link Entry} or null if `current` is the first one
+         * @param current  {@link Entry} which replaces (if any) `previous` and becomes active,
+         *                 `previous` is removed from history
+         * @see #replace(EntryDef)
+         */
         void onEntryReplaced(@Nullable Entry<K> previous, @NonNull Entry<K> current);
 
+        /**
+         * @param popped   {@link Entry} which is popped
+         * @param toAppear {@link Entry} to become active (previous in history), but only if it\'s
+         *                 present, null otherwise
+         * @see #pop()
+         */
         void onEntryPopped(@NonNull Entry<K> popped, @Nullable Entry<K> toAppear);
 
+        /**
+         * @param popped   {@link Entry} list of popped items
+         * @param toAppear {@link Entry} to become active (previous in history), but only if it\'s
+         *                 present, null otherwise
+         * @see #popTo(Entry)
+         */
         void onEntriesPopped(@NonNull List<Entry<K>> popped, @Nullable Entry<K> toAppear);
     }
 
+    /**
+     * Interface to be used if {@link #save(Filter)} requires filtering of existing entries
+     */
     public interface Filter<K extends Enum<K>> {
 
         /**
@@ -66,36 +105,72 @@ public abstract class History<K extends Enum<K>> {
      */
     public abstract boolean pop();
 
-    // returns a list of popped entries
+    /**
+     * @param entry {@link Entry} to pop to
+     * @return a list of popped entries
+     */
     @NonNull
     public abstract List<Entry<K>> popTo(@NonNull Entry<K> entry);
 
+    /**
+     * @return first {@link Entry} in this history if it\'s present (history not empty)
+     */
     @Nullable
     public abstract Entry<K> first();
 
+    /**
+     * @return last {@link Entry} in this history if it\'s present (history not empty)
+     */
     @Nullable
     public abstract Entry<K> last();
 
+    /**
+     * @return a list of {@link Entry} that this history holds
+     */
     @NonNull
     public abstract List<Entry<K>> entries();
 
+    /**
+     * @param key to search for
+     * @return first {@link Entry} in this history with provided `key` or null if it\'s none
+     */
     @Nullable
     public abstract Entry<K> first(@NonNull K key);
 
+    /**
+     * @param key to search for
+     * @return last {@link Entry} in this history with provided `key` or null if it\'s none
+     */
     @Nullable
     public abstract Entry<K> last(@NonNull K key);
 
+    /**
+     * @param key to search for
+     * @return a list of {@link Entry} with specified `key` or empty list if there are none
+     */
     @NonNull
     public abstract List<Entry<K>> entries(@NonNull K key);
 
-
+    /**
+     * @return number of {@link Entry} that this {@link History} holds
+     */
     public abstract int length();
 
-    // throws an exception if there is no entry available at specified index
+    /**
+     * @param index at which requested {@link Entry} positioned
+     * @return {@link Entry}
+     * @throws IndexOutOfBoundsException if provided index is out of this history range
+     */
     @SuppressWarnings("SameParameterValue")
     @NonNull
     public abstract Entry<K> entryAt(int index) throws IndexOutOfBoundsException;
 
+    /**
+     * Registers {@link Observer} to be notified about {@link History} modifications
+     *
+     * @param observer {@link Observer} to register
+     * @return {@link Subscription}
+     */
     @NonNull
     public abstract Subscription observe(@NonNull Observer<K> observer);
 
@@ -120,10 +195,18 @@ public abstract class History<K extends Enum<K>> {
     @NonNull
     public abstract HistoryState save(@NonNull Filter<K> filter);
 
-    // if null, nothing will happen....
-    // false will be returned if nothing was restored
-    // throws if history is not empty
+    /**
+     * @param historyState {@link HistoryState} to restore from
+     * @return a flag indicating if state was restored (now {@link History} is not empty)
+     * @throws IllegalStateException if current {@link History} is not empty
+     * @see HistoryState#restore(Bundle, String)
+     * @see HistoryState#restore(Parcelable)
+     */
     public abstract boolean restore(@Nullable HistoryState historyState) throws IllegalStateException;
 
+    /**
+     * @return a flag indicating if clear operation modified history (false will be
+     * returned if history is already empty)
+     */
     public abstract boolean clear();
 }

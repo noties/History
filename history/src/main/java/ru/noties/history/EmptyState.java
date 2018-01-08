@@ -4,6 +4,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+/**
+ * An empty state to be used when creating {@link Entry} that requires no state.
+ * This class will be used by default when {@link Entry#create(Enum)} is called
+ * without explicit state provided
+ *
+ * @see #instance()
+ */
 @SuppressWarnings("WeakerAccess")
 public final class EmptyState implements Parcelable {
 

@@ -4,7 +4,15 @@ import android.support.annotation.NonNull;
 
 import ru.noties.listeners.Listeners;
 
+/**
+ * Simple implementation of a {@link Subscription} that holds listeners in Listeners data structure
+ */
 public class SubscriptionImpl<T> implements Subscription {
+
+    @NonNull
+    public static <T> SubscriptionImpl<T> create(@NonNull Listeners<T> listeners, @NonNull T t) {
+        return new SubscriptionImpl<>(listeners, t);
+    }
 
     private Listeners<T> listeners;
     private T t;

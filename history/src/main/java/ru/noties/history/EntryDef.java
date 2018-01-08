@@ -3,6 +3,9 @@ package ru.noties.history;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
+/**
+ * Intermediate class that holds information about {@link Entry}
+ */
 @SuppressWarnings("WeakerAccess")
 public final class EntryDef<K extends Enum<K>> {
 
