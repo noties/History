@@ -52,6 +52,14 @@ public abstract class ScreenManager<K extends Enum<K>> {
     @Nullable
     public abstract Screen<K, ? extends Parcelable> findScreen(@NonNull Entry<K> entry);
 
+    // todo: maybe remove it
+    /**
+     * @param screen {@link Screen} for which to resolve visibility
+     * @return {@link Visibility} of supplied {@link Screen} or null if screen is not attached
+     */
+    @Nullable
+    public abstract Visibility screenVisibility(@NonNull Screen<K, ? extends Parcelable> screen);
+
 
     @SuppressWarnings("UnusedReturnValue")
     @NonNull

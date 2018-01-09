@@ -11,6 +11,8 @@ import ru.noties.history.HistoryState;
 import ru.noties.history.screen.ScreenLayout;
 import ru.noties.history.screen.ScreenManager;
 import ru.noties.history.screen.ScreenProvider;
+import ru.noties.history.screen.Visibility;
+import ru.noties.history.screen.VisibilityProvider;
 import ru.noties.history.screen.change.ChangeController;
 import ru.noties.history.screen.change.ViewChangeSlide;
 
@@ -20,7 +22,12 @@ public class MainActivity extends Activity {
     // todo: prebuilt history (History.builder() ?) skip layout creation...
     // todo| viewPager... (mock add - no notification?)
     //      it's actually a good question: manual transition (via touch event for example)
+    //      todo: first page of view pager is an empty page (transparent)
+    // todo: visibility offset (dynamic) + maybe modify it in runtime (+ detach?)
+    // todo: maybe manual transition? can we do that?
 
+    // todo: what if we will call visibility provider for each entry? this way it would be easy to
+    //      implement offset (so, no more than certain amount of views are hold in layout)
 
     private static final String KEY_STATE = "key.STATE";
 
@@ -51,6 +58,7 @@ public class MainActivity extends Activity {
         screenManager = ScreenManager.builder(history, screenProvider)
                 .changeLock(screenLayout)
                 .changeController(ChangeController.<ScreenKey>create(ViewChangeSlide.fromRight(250L)))
+                .visibilityProvider(VisibilityProvider.create(Visibility.VISIBLE))
                 .addPlugin(new ColorsPlugin(colors))
                 .build(this, screenLayout);
 

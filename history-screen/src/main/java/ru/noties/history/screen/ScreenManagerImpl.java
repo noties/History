@@ -8,7 +8,6 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ import ru.noties.history.screen.plugin.Plugin;
 class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements History.Observer<K> {
 
     // todo: validate that createView does not modify container (at least for children count...), but do we need it actually?
-    // todo: getItem|Screen method
     // todo: force main thread
 
     private final History<K> history;
@@ -256,10 +254,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         // make it inactive
         inactive(poppedTopItem);
 
-        final View viewForPoppedItems = viewForPoppedItems(poppedItems);
-
         final ScreenManagerItem<K> toAppearItem = onPoppedToAppear(toAppear, items.size() - popped.size() - 1);
-
 
         changeLock.lock();
 
@@ -277,26 +272,22 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
                     active(toAppearItem);
                 }
 
-                destroyPopped(toAppearItem, viewForPoppedItems);
+                destroyPopped(toAppearItem);
             }
         };
 
-        if (poppedItems.size() > 1) {
+        final List<Screen<K, ? extends Parcelable>> visibleScreens = poppedItems.size() > 1
+                ? onPoppedVisibleScreens(poppedItems)
+                : null;
 
-            final List<Screen<K, ? extends Parcelable>> screens = new ArrayList<>(poppedItems.size());
-
-            for (ScreenManagerItem<K> item : poppedItems) {
-                screens.add(item.screen);
-            }
-
+        if (visibleScreens != null
+                && visibleScreens.size() > 1) {
             pendingChangeCallback = changeController.back(
                     this,
-                    screens,
+                    visibleScreens,
                     screen(toAppearItem),
-                    viewForPoppedItems,
                     endAction
             );
-
         } else {
             pendingChangeCallback = changeController.back(
                     this,
@@ -401,6 +392,15 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         return screen;
     }
 
+    @Nullable
+    @Override
+    public Visibility screenVisibility(@NonNull Screen<K, ? extends Parcelable> screen) {
+        final View view = screen.view();
+        return view != null
+                ? Visibility.forValue(view.getVisibility())
+                : null;
+    }
+
     @NonNull
     @Override
     public Subscription screenCallbacks(@NonNull ScreenLifecycleCallbacks<K> screenLifecycleCallbacks) {
@@ -448,6 +448,9 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
                     if (size > 1) {
 
+                        // todo: if we make visibility provider always accept the full entries list
+                        // then we won't have to iterate like this, we will just supply our items and that's it
+
                         ScreenManagerItem<K> previous = items.get(0);
                         ScreenManagerItem<K> current;
                         Visibility visibility;
@@ -477,12 +480,12 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
                     // make last item attached and visible no matter what
                     final ScreenManagerItem<K> item = items.get(size - 1);
                     attach(item);
-                }
 
-                // most likely no, but still
-                // else, onActivity resume will make it automatically
-                if (activityResumed) {
-                    active(lastItem());
+                    // most likely no, but still
+                    // else, onActivity resume will make it automatically active
+                    if (activityResumed) {
+                        active(lastItem());
+                    }
                 }
             }
         }
@@ -614,7 +617,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         attach(item, container.getChildCount());
     }
 
-    private void attach(@NonNull ScreenManagerItem<K> item, int index) {
+    private void attach(@NonNull final ScreenManagerItem<K> item, int index) {
 
         // create view for supplied item
         final View view = item.screen.onCreateView(layoutInflater(), container);
@@ -625,6 +628,25 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         // store view
         item.view = view;
         item.visibility = Visibility.VISIBLE;
+
+        // todo: let's think of that
+        //      maybe providing API to deal with view state would be better
+//        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
+//            @Override
+//            public void onViewAttachedToWindow(View v) {
+//                // no op, we are already attached
+//            }
+//
+//            @Override
+//            public void onViewDetachedFromWindow(View v) {
+//                Log.e("detached", "" + v);
+//                if (item.view != null) {
+//                    eventDispatcher.dispatchOnDetach(item.screen, v);
+//                    item.view = null;
+//                    item.visibility = null;
+//                }
+//            }
+//        });
 
         // dispatch onAttach event
         eventDispatcher.dispatchOnAttach(item.screen, view);
@@ -666,50 +688,6 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         items.remove(item);
     }
 
-    @NonNull
-    private View viewForPoppedItems(@NonNull List<ScreenManagerItem<K>> items) {
-
-        // if there is only one view -> return it
-        // else create a new FrameLayout, add all views to it (add to our container)
-
-        final List<ScreenManagerItem<K>> itemViews = new ArrayList<>(3);
-        for (ScreenManagerItem<K> item : items) {
-            if (item.view != null) {
-                itemViews.add(item);
-            }
-        }
-
-        final View out;
-
-        if (itemViews.size() == 1) {
-
-            out = itemViews.get(0).view;
-
-        } else {
-
-            final FrameLayout layout = new FrameLayout(activity);
-
-            View view;
-
-            for (ScreenManagerItem<K> item : itemViews) {
-
-                view = item.view;
-
-                // detach, as it's what we are doing:
-                detach(item);
-
-                layout.addView(view);
-            }
-
-            // add this group to our container
-            container.addView(layout);
-
-            out = layout;
-        }
-
-        return out;
-    }
-
     @Nullable
     private ScreenManagerItem<K> onPoppedToAppear(@Nullable Entry<K> toAppear, int expectedIndex) {
 
@@ -735,7 +713,22 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         return item;
     }
 
-    private void destroyPopped(@Nullable ScreenManagerItem<K> toAppear, @NonNull View viewForPoppedItems) {
+    @NonNull
+    private List<Screen<K, ? extends Parcelable>> onPoppedVisibleScreens(@NonNull List<ScreenManagerItem<K>> poppedItems) {
+
+        final List<Screen<K, ? extends Parcelable>> screens = new ArrayList<>(poppedItems.size());
+
+        for (ScreenManagerItem<K> item : poppedItems) {
+            if (item.view != null
+                    && item.visibility == Visibility.VISIBLE) {
+                screens.add(item.screen);
+            }
+        }
+
+        return screens;
+    }
+
+    private void destroyPopped(@Nullable ScreenManagerItem<K> toAppear) {
 
         if (toAppear == null && !detachLastView) {
             return;
@@ -761,11 +754,6 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
             } else {
                 result = false;
             }
-        }
-
-        // if viewForPoppedItems is still attached -> detach
-        if (viewForPoppedItems.getParent() != null) {
-            container.removeView(viewForPoppedItems);
         }
     }
 

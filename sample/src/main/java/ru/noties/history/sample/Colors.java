@@ -3,7 +3,9 @@ package ru.noties.history.sample;
 import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 abstract class Colors {
 
@@ -18,7 +20,7 @@ abstract class Colors {
 
     static class Impl extends Colors {
 
-        private static final int[] COLORS = {
+        private static final Integer[] COLORS = {
                 0xffC62828,
                 0xffAD1457,
                 0xff6A1B9A,
@@ -31,11 +33,18 @@ abstract class Colors {
                 0xff2E7D32
         };
 
-        private final Random random = new Random();
+        private final List<Integer> list = new ArrayList<>(COLORS.length);
+
+        private int index;
+
+        {
+            Collections.addAll(list, COLORS);
+            Collections.shuffle(list);
+        }
 
         @Override
         int next() {
-            return COLORS[random.nextInt(COLORS.length)];
+            return list.get(index++ % COLORS.length);
         }
     }
 }

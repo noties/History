@@ -3,7 +3,6 @@ package ru.noties.history.screen.change;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.view.View;
 
 import java.util.List;
 
@@ -47,16 +46,28 @@ public abstract class ChangeController<K extends Enum<K>> {
             @NonNull Runnable endAction
     );
 
+    /**
+     * This method will be called when back operation removes multiple VISIBLE screens from layout.
+     * Default implementation executes changes sequentially
+     *
+     * @param manager   {@link ScreenManager}
+     * @param from      a list of {@link Screen} to be _popped_. Size will be more than 1 always,
+     *                  otherwise simple {@link #back(ScreenManager, Screen, Screen, Runnable)} will be called
+     * @param to        {@link Screen} to appear or null if all items are popped
+     * @param endAction end action to be invoked after change completes
+     * @return {@link ChangeCallback}
+     */
     @SuppressWarnings("unused")
     @NonNull
     public ChangeCallback back(
             @NonNull ScreenManager<K> manager,
             @NonNull List<Screen<K, ? extends Parcelable>> from,
             @Nullable Screen<K, ? extends Parcelable> to,
-            @NonNull View view,
             @NonNull Runnable endAction
     ) {
-        return back(manager, from.get(from.size() - 1), to, endAction);
+        return to == null
+                ? ChangeCallbackNoOp.noOp(endAction)
+                : ChangeControllerBackMultiple.back(manager, this, from, to, endAction);
     }
 
 
