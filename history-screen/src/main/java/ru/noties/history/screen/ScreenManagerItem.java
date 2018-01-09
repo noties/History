@@ -10,7 +10,6 @@ class ScreenManagerItem<K extends Enum<K>> {
 
     final Entry<K> entry;
     final Screen<K, ? extends Parcelable> screen;
-    Visibility visibility;
     View view;
 
     ScreenManagerItem(@NonNull Entry<K> entry, @NonNull Screen<K, ? extends Parcelable> screen) {
@@ -38,7 +37,6 @@ class ScreenManagerItem<K extends Enum<K>> {
         return "ScreenManagerItem{" +
                 "entry=" + entry +
                 ", screen=" + screen +
-                ", visibility=" + visibility +
                 ", view=" + view +
                 '}';
     }

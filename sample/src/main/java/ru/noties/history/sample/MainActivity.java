@@ -62,8 +62,8 @@ public class MainActivity extends Activity {
                 .addPlugin(new ColorsPlugin(colors))
                 .build(this, screenLayout);
 
-        history.observe(new LoggingObserver<>());
-        screenManager.screenCallbacks(new LoggingScreenLifecycleCallbacks<>());
+//        history.observe(new LoggingObserver<>());
+//        screenManager.screenCallbacks(new LoggingScreenLifecycleCallbacks<>());
 
         if (!screenManager.restoreState(HistoryState.restore(savedInstanceState, KEY_STATE))) {
             history.push(Entry.create(ScreenKey.CONTENT, new ContentState(0, colors.next())));

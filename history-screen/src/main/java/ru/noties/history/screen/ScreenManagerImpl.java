@@ -26,6 +26,10 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     // todo: validate that createView does not modify container (at least for children count...), but do we need it actually?
     // todo: force main thread
 
+    // todo: I think we rely too much on keeping the visibility in the ScreenManagerItem
+    //      maybe we are way better to obtain visibility directly from a view (after all, views could be
+    //      modified externally)
+
     private final History<K> history;
 
     private final ScreenProvider<K> screenProvider;
@@ -97,7 +101,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     }
 
     @Override
-    public void onEntryPushed(@Nullable Entry<K> previous, @NonNull final Entry<K> current) {
+    public void onEntryPushed(@Nullable final Entry<K> previous, @NonNull final Entry<K> current) {
 
         // ignore this call if we are restoring state (applicable only for push event)
         // state restoration should take care of adding views to container as appropriate
@@ -109,7 +113,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
             @Override
             void run(@NonNull ScreenManagerItem<K> previousItem) {
 
-                final Visibility visibility = previousItem.visibility = resolveInActiveVisibility(previousItem.entry, current);
+                final Visibility visibility = resolveInActiveVisibility(previousItem.entry, current);
 
                 if (visibility == null) {
 
@@ -118,7 +122,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
                 } else {
 
                     // just accept the visibility to a view (please note that onDetach event is not dispatched)
-                    previousItem.view.setVisibility(visibility.androidViewVisibility());
+                    visibility.apply(previousItem.view);
                 }
             }
         });
@@ -340,7 +344,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
                 break;
             }
 
-            if (item.visibility != null) {
+            if (screenVisibility(item.screen) != null) {
                 index += 1;
             }
         }
@@ -448,9 +452,6 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
                     if (size > 1) {
 
-                        // todo: if we make visibility provider always accept the full entries list
-                        // then we won't have to iterate like this, we will just supply our items and that's it
-
                         ScreenManagerItem<K> previous = items.get(0);
                         ScreenManagerItem<K> current;
                         Visibility visibility;
@@ -465,9 +466,6 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
                             if (visibility != null) {
 
                                 attach(previous);
-
-                                // should apply after attach (as it sets visibility to VISIBLE automatically)
-                                previous.visibility = visibility;
 
                                 // apply actual visibility
                                 visibility.apply(previous.view);
@@ -543,12 +541,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     }
 
     private void listenForContainerEvents() {
-        containerOnAttachStateListener = new View.OnAttachStateChangeListener() {
-            @Override
-            public void onViewAttachedToWindow(View v) {
-                // no op
-            }
-
+        containerOnAttachStateListener = new OnAttachStateChangeListenerAdapter() {
             @Override
             public void onViewDetachedFromWindow(View v) {
                 dispose();
@@ -627,26 +620,26 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
         // store view
         item.view = view;
-        item.visibility = Visibility.VISIBLE;
 
-        // todo: let's think of that
-        //      maybe providing API to deal with view state would be better
-//        view.addOnAttachStateChangeListener(new View.OnAttachStateChangeListener() {
-//            @Override
-//            public void onViewAttachedToWindow(View v) {
-//                // no op, we are already attached
-//            }
-//
-//            @Override
-//            public void onViewDetachedFromWindow(View v) {
-//                Log.e("detached", "" + v);
-//                if (item.view != null) {
-//                    eventDispatcher.dispatchOnDetach(item.screen, v);
-//                    item.view = null;
-//                    item.visibility = null;
-//                }
-//            }
-//        });
+        // listen for view state, so if a view is detached, we no longer reference it
+        // this is done mostly for safety reasons (just in case) any manual modification
+        // of the `container` must be discouraged
+        view.addOnAttachStateChangeListener(new OnAttachStateChangeListenerAdapter() {
+
+            @Override
+            public void onViewDetachedFromWindow(View v) {
+
+                // remove callbacks, so we no longer receive these events
+                v.removeOnAttachStateChangeListener(this);
+
+                // detach could happen as our internal functionality, so if we still reference view
+                // walk the screen the normal lifecycle when detaching
+                if (item.view != null) {
+                    eventDispatcher.dispatchOnDetach(item.screen, v);
+                    item.view = null;
+                }
+            }
+        });
 
         // dispatch onAttach event
         eventDispatcher.dispatchOnAttach(item.screen, view);
@@ -658,17 +651,20 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
     private void detach(@NonNull ScreenManagerItem<K> item, boolean keepViewInLayout) {
 
+        final View view = item.view;
+
         // detach if view has no visibility
-        eventDispatcher.dispatchOnDetach(item.screen, item.view);
+        eventDispatcher.dispatchOnDetach(item.screen, view);
+
+        // release view reference (we are listening for attach state, so we must clear the reference
+        // before actual call to remove)
+        item.view = null;
 
         // can be useful for last items (so there is no visual glitch when exiting application)
         if (!keepViewInLayout) {
             // remove from container
-            container.removeView(item.view);
+            container.removeView(view);
         }
-
-        // release view reference
-        item.view = null;
     }
 
     private void inactive(@NonNull ScreenManagerItem<K> item) {
@@ -706,8 +702,6 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
             } else if (View.VISIBLE != item.view.getVisibility()) {
                 item.view.setVisibility(View.VISIBLE);
             }
-
-            item.visibility = Visibility.VISIBLE;
         }
 
         return item;
@@ -720,7 +714,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
         for (ScreenManagerItem<K> item : poppedItems) {
             if (item.view != null
-                    && item.visibility == Visibility.VISIBLE) {
+                    && Visibility.VISIBLE == screenVisibility(item.screen)) {
                 screens.add(item.screen);
             }
         }
