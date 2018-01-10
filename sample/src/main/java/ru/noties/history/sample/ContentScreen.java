@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import ru.noties.history.Entry;
-import ru.noties.history.screen.Screen;
-import ru.noties.history.screen.ScreenManager;
+import ru.noties.screen.Screen;
+import ru.noties.screen.ScreenManager;
 
 public class ContentScreen extends Screen<ScreenKey, ContentState> {
 

@@ -8,13 +8,13 @@ import ru.noties.debug.Debug;
 import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
-import ru.noties.history.screen.ScreenLayout;
-import ru.noties.history.screen.ScreenManager;
-import ru.noties.history.screen.ScreenProvider;
-import ru.noties.history.screen.Visibility;
-import ru.noties.history.screen.VisibilityProvider;
-import ru.noties.history.screen.change.ChangeController;
-import ru.noties.history.screen.change.ViewChangeSlide;
+import ru.noties.screen.ScreenLayout;
+import ru.noties.screen.ScreenManager;
+import ru.noties.screen.ScreenProvider;
+import ru.noties.screen.Visibility;
+import ru.noties.screen.VisibilityProvider;
+import ru.noties.screen.change.ChangeController;
+import ru.noties.screen.change.ViewChangeSlide;
 
 public class MainActivity extends Activity {
 

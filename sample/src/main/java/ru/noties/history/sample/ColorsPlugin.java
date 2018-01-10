@@ -2,7 +2,7 @@ package ru.noties.history.sample;
 
 import android.support.annotation.NonNull;
 
-import ru.noties.history.screen.plugin.Plugin;
+import ru.noties.screen.plugin.Plugin;
 
 public class ColorsPlugin implements Plugin {
 
