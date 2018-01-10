@@ -28,6 +28,21 @@ public final class ChangeNoOp<K extends Enum<K>> extends Change<K> {
     }
 
     @Override
+    protected void applyStartValues(boolean reverse, @NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to) {
+        // no op
+    }
+
+    @Override
+    protected void executeChange(boolean reverse, @NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to, @NonNull Runnable endAction) {
+        // no op
+    }
+
+    @Override
+    protected void cancelChange(boolean reverse, @NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to) {
+        // no op
+    }
+
+    @Override
     protected boolean isReady(@NonNull Screen<K, ? extends Parcelable> screen) {
         return true;
     }

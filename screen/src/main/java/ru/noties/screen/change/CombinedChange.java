@@ -27,7 +27,7 @@ public class CombinedChange<K extends Enum<K>> extends Change<K> {
 
     @NonNull
     @Override
-    protected ChangeCallback applyNow(
+    protected final ChangeCallback applyNow(
             boolean reverse,
             @NonNull ScreenManager<K> manager,
             @NonNull Screen<K, ? extends Parcelable> from,
@@ -50,5 +50,20 @@ public class CombinedChange<K extends Enum<K>> extends Change<K> {
         return new CombinedChangeCallback()
                 .from(fromChange.apply(reverse, manager, from, combinedAction))
                 .to(toChange.apply(reverse, manager, to, combinedAction));
+    }
+
+    @Override
+    protected void applyStartValues(boolean reverse, @NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to) {
+        throw new RuntimeException();
+    }
+
+    @Override
+    protected void executeChange(boolean reverse, @NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to, @NonNull Runnable endAction) {
+        throw new RuntimeException();
+    }
+
+    @Override
+    protected void cancelChange(boolean reverse, @NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to) {
+        throw new RuntimeException();
     }
 }

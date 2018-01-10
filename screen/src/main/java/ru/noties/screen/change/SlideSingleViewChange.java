@@ -5,48 +5,48 @@ import android.view.View;
 import android.view.ViewGroup;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class SingleViewChangeSlide extends SingleViewChange {
+public class SlideSingleViewChange extends SingleViewChange {
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> toLeft(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeSlide(duration, LEFT | TO);
+        return new SlideSingleViewChange(duration, LEFT | TO);
     }
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> fromLeft(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeSlide(duration, LEFT | FROM);
+        return new SlideSingleViewChange(duration, LEFT | FROM);
     }
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> toTop(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeSlide(duration, TOP | TO);
+        return new SlideSingleViewChange(duration, TOP | TO);
     }
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> fromTop(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeSlide(duration, TOP | FROM);
+        return new SlideSingleViewChange(duration, TOP | FROM);
     }
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> toRight(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeSlide(duration, RIGHT | TO);
+        return new SlideSingleViewChange(duration, RIGHT | TO);
     }
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> fromRight(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeSlide(duration, RIGHT | FROM);
+        return new SlideSingleViewChange(duration, RIGHT | FROM);
     }
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> fromBottom(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeSlide(duration, BOTTOM);
+        return new SlideSingleViewChange(duration, BOTTOM);
     }
 
     @SuppressWarnings("PointlessBitwiseExpression")
@@ -61,7 +61,7 @@ public class SingleViewChangeSlide extends SingleViewChange {
     private final long duration;
     private final Resolver resolver;
 
-    SingleViewChangeSlide(long duration, int dir) {
+    SlideSingleViewChange(long duration, int dir) {
         this.duration = duration;
         this.resolver = resolver(dir);
     }

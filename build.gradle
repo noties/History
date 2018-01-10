@@ -44,6 +44,7 @@ ext {
     RECYCLER_VIEW = "com.android.support:recyclerview-v7:$supportVersion"
 
     LISTENERS = 'ru.noties:listeners:1.0.1'
+    TUMBLEWEED_ANDROID = 'ru.noties:tumbleweed-android:1.0.1'
 
     TEST_JUNIT = 'junit:junit:4.12'
     TEST_ROBOLECTRIC = 'org.robolectric:robolectric:3.5.1'

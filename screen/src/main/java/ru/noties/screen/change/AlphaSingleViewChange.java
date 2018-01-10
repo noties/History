@@ -5,25 +5,25 @@ import android.view.View;
 import android.view.ViewGroup;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class SingleViewChangeAlpha extends SingleViewChange {
+public class AlphaSingleViewChange extends SingleViewChange {
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> to(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeAlpha(duration, .0F, 1.F);
+        return new AlphaSingleViewChange(duration, .0F, 1.F);
     }
 
     @NonNull
     public static <K extends Enum<K>> SingleChange<K> from(long duration) {
         //noinspection unchecked
-        return new SingleViewChangeAlpha(duration, 1.F, .0F);
+        return new AlphaSingleViewChange(duration, 1.F, .0F);
     }
 
     private final long duration;
     private final float start;
     private final float end;
 
-    public SingleViewChangeAlpha(long duration, float start, float end) {
+    public AlphaSingleViewChange(long duration, float start, float end) {
         this.duration = duration;
         this.start = start;
         this.end = end;

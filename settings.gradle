@@ -1,2 +1,2 @@
 rootProject.name = 'HistoryProject'
-include ':sample', ':history', ':screen'
+include ':sample', ':history', ':screen', ':screen-changes'

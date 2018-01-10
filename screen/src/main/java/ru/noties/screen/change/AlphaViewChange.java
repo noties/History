@@ -5,17 +5,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class ViewChangeAlpha extends ViewChange {
+public class AlphaViewChange extends ViewChange {
 
     @NonNull
     public static <K extends Enum<K>> Change<K> create(long duration) {
         //noinspection unchecked
-        return new ViewChangeAlpha(duration);
+        return new AlphaViewChange(duration);
     }
 
     private final long duration;
 
-    public ViewChangeAlpha(long duration) {
+    public AlphaViewChange(long duration) {
         this.duration = duration;
     }
 
@@ -26,7 +26,7 @@ public class ViewChangeAlpha extends ViewChange {
     }
 
     @Override
-    protected void startAnimation(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to, @NonNull Runnable endAction) {
+    protected void executeChange(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to, @NonNull Runnable endAction) {
 
         from.animate()
                 .alpha(reverse ? 1.F : .0F)
@@ -41,7 +41,7 @@ public class ViewChangeAlpha extends ViewChange {
     }
 
     @Override
-    protected void cancelAnimation(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
+    protected void cancelChange(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
         from.clearAnimation();
         to.clearAnimation();
     }

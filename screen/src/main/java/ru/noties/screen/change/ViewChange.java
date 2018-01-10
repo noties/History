@@ -10,6 +10,12 @@ import ru.noties.screen.ScreenManager;
 @SuppressWarnings("WeakerAccess")
 public abstract class ViewChange extends Change {
 
+    @SuppressWarnings("unused")
+    @NonNull
+    public <K extends Enum<K>> Change<K> cast(@NonNull Class<K> type) {
+        //noinspection unchecked
+        return (Change<K>) this;
+    }
 
     protected abstract void applyStartValues(
             boolean reverse,
@@ -18,7 +24,7 @@ public abstract class ViewChange extends Change {
             @NonNull View to
     );
 
-    protected abstract void startAnimation(
+    protected abstract void executeChange(
             boolean reverse,
             @NonNull ViewGroup container,
             @NonNull View from,
@@ -26,7 +32,7 @@ public abstract class ViewChange extends Change {
             @NonNull Runnable endAction
     );
 
-    protected abstract void cancelAnimation(
+    protected abstract void cancelChange(
             boolean reverse,
             @NonNull ViewGroup container,
             @NonNull View from,
@@ -58,20 +64,38 @@ public abstract class ViewChange extends Change {
             @NonNull final Runnable endAction
     ) {
 
-        final ViewGroup container = manager.container();
-        final View fromView = from.view();
-        final View toView = to.view();
+        //noinspection unchecked
+        return super.applyNow(reverse, manager, from, to, endAction);
 
-        applyStartValues(reverse, container, fromView, toView);
+//        final ViewGroup container = manager.container();
+//        final View fromView = from.view();
+//        final View toView = to.view();
+//
+//        applyStartValues(reverse, container, fromView, toView);
+//
+//        executeChange(reverse, container, fromView, toView, endAction);
+//
+//        return new ChangeCallback() {
+//            @Override
+//            public void cancel() {
+//                cancelChange(reverse, container, fromView, toView);
+//                endAction.run();
+//            }
+//        };
+    }
 
-        startAnimation(reverse, container, fromView, toView, endAction);
+    @Override
+    protected final void applyStartValues(boolean reverse, @NonNull ScreenManager manager, @NonNull Screen from, @NonNull Screen to) {
+        applyStartValues(reverse, manager.container(), from.view(), to.view());
+    }
 
-        return new ChangeCallback() {
-            @Override
-            public void cancel() {
-                cancelAnimation(reverse, container, fromView, toView);
-                endAction.run();
-            }
-        };
+    @Override
+    protected final void executeChange(boolean reverse, @NonNull ScreenManager manager, @NonNull Screen from, @NonNull Screen to, @NonNull Runnable endAction) {
+        executeChange(reverse, manager.container(), from.view(), to.view(), endAction);
+    }
+
+    @Override
+    protected final void cancelChange(boolean reverse, @NonNull ScreenManager manager, @NonNull Screen from, @NonNull Screen to) {
+        cancelChange(reverse, manager.container(), from.view(), to.view());
     }
 }

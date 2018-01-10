@@ -33,7 +33,35 @@ public abstract class Change<K extends Enum<K>> {
     }
 
     @NonNull
-    protected abstract ChangeCallback applyNow(
+    protected ChangeCallback applyNow(
+            final boolean reverse,
+            @NonNull final ScreenManager<K> manager,
+            @NonNull final Screen<K, ? extends Parcelable> from,
+            @NonNull final Screen<K, ? extends Parcelable> to,
+            @NonNull final Runnable endAction
+    ) {
+
+        applyStartValues(reverse, manager, from, to);
+
+        executeChange(reverse, manager, from, to, endAction);
+
+        return new ChangeCallback() {
+            @Override
+            public void cancel() {
+                cancelChange(reverse, manager, from, to);
+                endAction.run();
+            }
+        };
+    }
+
+    protected abstract void applyStartValues(
+            boolean reverse,
+            @NonNull ScreenManager<K> manager,
+            @NonNull Screen<K, ? extends Parcelable> from,
+            @NonNull Screen<K, ? extends Parcelable> to
+    );
+
+    protected abstract void executeChange(
             boolean reverse,
             @NonNull ScreenManager<K> manager,
             @NonNull Screen<K, ? extends Parcelable> from,
@@ -41,9 +69,12 @@ public abstract class Change<K extends Enum<K>> {
             @NonNull Runnable endAction
     );
 
-    protected boolean isReady(@NonNull Screen<K, ? extends Parcelable> screen) {
-        return screen.view().getWidth() > 0;
-    }
+    protected abstract void cancelChange(
+            boolean reverse,
+            @NonNull ScreenManager<K> manager,
+            @NonNull Screen<K, ? extends Parcelable> from,
+            @NonNull Screen<K, ? extends Parcelable> to
+    );
 
     @NonNull
     protected ChangeCallback applyWhenReady(
@@ -86,6 +117,10 @@ public abstract class Change<K extends Enum<K>> {
                 }
             }
         };
+    }
+
+    protected boolean isReady(@NonNull Screen<K, ? extends Parcelable> screen) {
+        return screen.view().getWidth() > 0;
     }
 
     protected static void addOnPreDrawListener(@NonNull Screen<?, ?> screen, @NonNull ViewTreeObserver.OnPreDrawListener listener) {

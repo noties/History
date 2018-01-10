@@ -5,31 +5,31 @@ import android.view.View;
 import android.view.ViewGroup;
 
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class ViewChangeSlide extends ViewChange {
+public class SlideViewChange extends ViewChange {
 
     @NonNull
     public static <K extends Enum<K>> Change<K> fromLeft(long duration) {
         //noinspection unchecked
-        return new ViewChangeSlide(duration, LEFT);
+        return new SlideViewChange(duration, LEFT);
     }
 
     @NonNull
     public static <K extends Enum<K>> Change<K> fromTop(long duration) {
         //noinspection unchecked
-        return new ViewChangeSlide(duration, TOP);
+        return new SlideViewChange(duration, TOP);
     }
 
     @NonNull
     public static <K extends Enum<K>> Change<K> fromRight(long duration) {
         //noinspection unchecked
-        return new ViewChangeSlide(duration, RIGHT);
+        return new SlideViewChange(duration, RIGHT);
     }
 
     @SuppressWarnings("SameParameterValue")
     @NonNull
     public static <K extends Enum<K>> Change<K> fromBottom(long duration) {
         //noinspection unchecked
-        return new ViewChangeSlide(duration, BOTTOM);
+        return new SlideViewChange(duration, BOTTOM);
     }
 
     private static final int LEFT = 0;
@@ -40,7 +40,7 @@ public class ViewChangeSlide extends ViewChange {
     private final long duration;
     private final Resolver resolver;
 
-    ViewChangeSlide(long duration, int dir) {
+    SlideViewChange(long duration, int dir) {
         this.duration = duration;
         this.resolver = resolver(dir);
     }
@@ -81,7 +81,7 @@ public class ViewChangeSlide extends ViewChange {
     }
 
     @Override
-    protected void startAnimation(
+    protected void executeChange(
             boolean reverse,
             @NonNull ViewGroup container,
             @NonNull View from,
@@ -97,7 +97,7 @@ public class ViewChangeSlide extends ViewChange {
     }
 
     @Override
-    protected void cancelAnimation(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
+    protected void cancelChange(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
         from.clearAnimation();
         to.clearAnimation();
     }

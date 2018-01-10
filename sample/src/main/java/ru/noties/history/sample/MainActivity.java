@@ -2,19 +2,32 @@ package ru.noties.history.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import ru.noties.debug.AndroidLogDebugOutput;
 import ru.noties.debug.Debug;
 import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
+import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenLayout;
 import ru.noties.screen.ScreenManager;
 import ru.noties.screen.ScreenProvider;
-import ru.noties.screen.Visibility;
-import ru.noties.screen.VisibilityProvider;
+import ru.noties.screen.change.Change;
+import ru.noties.screen.change.ChangeCallback;
+import ru.noties.screen.change.ChangeCallbackNoOp;
 import ru.noties.screen.change.ChangeController;
-import ru.noties.screen.change.ViewChangeSlide;
+import ru.noties.screen.changes.AccordionViewChange;
+import ru.noties.screen.changes.CubeOutViewChange;
+import ru.noties.screen.changes.DepthViewChange;
+import ru.noties.screen.changes.FlipViewChange;
+import ru.noties.screen.changes.ParallaxViewChange;
+import ru.noties.screen.changes.ZoomOutViewChange;
 
 public class MainActivity extends Activity {
 
@@ -57,8 +70,7 @@ public class MainActivity extends Activity {
 
         screenManager = ScreenManager.builder(history, screenProvider)
                 .changeLock(screenLayout)
-                .changeController(ChangeController.<ScreenKey>create(ViewChangeSlide.fromRight(250L)))
-                .visibilityProvider(VisibilityProvider.create(Visibility.VISIBLE))
+                .changeController(new ChangeControllerImpl(createChanges()))
                 .addPlugin(new ColorsPlugin(colors))
                 .build(this, screenLayout);
 
@@ -81,5 +93,80 @@ public class MainActivity extends Activity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(KEY_STATE, screenManager.history().save());
+    }
+
+    @NonNull
+    private static List<Change<ScreenKey>> createChanges() {
+
+        final long duration = 250L;
+
+        final List<Change<ScreenKey>> changes = new ArrayList<>();
+
+        changes.add(CubeOutViewChange.fromLeft(duration));
+        changes.add(CubeOutViewChange.fromTop(duration));
+        changes.add(CubeOutViewChange.fromRight(duration));
+        changes.add(CubeOutViewChange.fromBottom(duration));
+
+        changes.add(DepthViewChange.fromLeft(duration));
+        changes.add(DepthViewChange.fromTop(duration));
+        changes.add(DepthViewChange.fromRight(duration));
+        changes.add(DepthViewChange.fromBottom(duration));
+
+        changes.add(ZoomOutViewChange.fromLeft(duration * 3));
+        changes.add(ZoomOutViewChange.fromTop(duration * 3));
+        changes.add(ZoomOutViewChange.fromRight(duration * 3));
+        changes.add(ZoomOutViewChange.fromBottom(duration * 3));
+
+        changes.add(AccordionViewChange.fromLeft(duration));
+        changes.add(AccordionViewChange.fromTop(duration));
+        changes.add(AccordionViewChange.fromRight(duration));
+        changes.add(AccordionViewChange.fromBottom(duration));
+
+        changes.add(FlipViewChange.fromLeft(duration * 2));
+        changes.add(FlipViewChange.fromTop(duration * 2));
+        changes.add(FlipViewChange.fromRight(duration * 2));
+        changes.add(FlipViewChange.fromBottom(duration * 2));
+
+        changes.add(ParallaxViewChange.fromLeft(duration));
+        changes.add(ParallaxViewChange.fromTop(duration));
+        changes.add(ParallaxViewChange.fromRight(duration));
+        changes.add(ParallaxViewChange.fromBottom(duration));
+
+        return changes;
+    }
+
+    private static class ChangeControllerImpl extends ChangeController<ScreenKey> {
+
+        private final List<Change<ScreenKey>> changes;
+
+        private ChangeControllerImpl(@NonNull List<Change<ScreenKey>> changes) {
+            this.changes = changes;
+        }
+
+        @NonNull
+        @Override
+        public ChangeCallback forward(@NonNull ScreenManager<ScreenKey> manager, @Nullable Screen<ScreenKey, ? extends Parcelable> from, @NonNull Screen<ScreenKey, ? extends Parcelable> to, @NonNull Runnable endAction) {
+
+            if (from == null) {
+                return ChangeCallbackNoOp.noOp(endAction);
+            }
+
+            final ContentState state = (ContentState) from.state;
+            final int index = (state.value() % changes.size());
+            return changes.get(index).apply(false, manager, from, to, endAction);
+        }
+
+        @NonNull
+        @Override
+        public ChangeCallback back(@NonNull ScreenManager<ScreenKey> manager, @NonNull Screen<ScreenKey, ? extends Parcelable> from, @Nullable Screen<ScreenKey, ? extends Parcelable> to, @NonNull Runnable endAction) {
+
+            if (to == null) {
+                return ChangeCallbackNoOp.noOp(endAction);
+            }
+
+            final ContentState state = (ContentState) to.state;
+            final int index = (state.value() % changes.size());
+            return changes.get(index).apply(true, manager, to, from, endAction);
+        }
     }
 }
