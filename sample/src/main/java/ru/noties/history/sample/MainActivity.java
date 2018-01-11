@@ -13,7 +13,6 @@ import ru.noties.debug.AndroidLogDebugOutput;
 import ru.noties.debug.Debug;
 import ru.noties.history.Entry;
 import ru.noties.history.History;
-import ru.noties.history.HistoryBuilder;
 import ru.noties.history.HistoryState;
 import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenLayout;
@@ -34,7 +33,6 @@ import ru.noties.screen.changes.ZoomOutViewChange;
 public class MainActivity extends Activity {
 
     // todo: theme swapping (by providing layout inflater or context) save/clear/restore
-    // todo: prebuilt history (History.builder() ?) skip layout creation...
     // todo| viewPager... (mock add - no notification?)
     //      it's actually a good question: manual transition (via touch event for example)
     //      todo: first page of view pager is an empty page (transparent)
@@ -76,19 +74,6 @@ public class MainActivity extends Activity {
                 .changeController(new ChangeControllerImpl(createChanges()))
                 .addPlugin(new ColorsPlugin(colors))
                 .build(this, screenLayout);
-
-        if (true) {
-
-            final HistoryBuilder<ScreenKey> historyBuilder = History.builder(ScreenKey.class);
-
-            // test pre-building the history
-            for (int i = 0; i < 100; i++) {
-                historyBuilder.push(ScreenKey.CONTENT, new ContentState(i, colors.next()));
-            }
-
-            screenManager.restoreState(historyBuilder.build());
-            return;
-        }
 
 //        history.observe(new LoggingObserver<>());
 //        screenManager.screenCallbacks(new LoggingScreenLifecycleCallbacks<>());

@@ -16,6 +16,8 @@ import ru.noties.screen.plugin.Plugin;
 @SuppressWarnings("unused")
 public abstract class ScreenManager<K extends Enum<K>> {
 
+    // todo: layoutChanges() -> Subscription
+
     @NonNull
     public static <K extends Enum<K>> ScreenManagerBuilder<K> builder() {
         return new ScreenManagerBuilder<>();
@@ -78,4 +80,9 @@ public abstract class ScreenManager<K extends Enum<K>> {
      * running (transition between screens)
      */
     public abstract boolean isChangingScreens();
+
+    /**
+     * @param runnable that will be run when next screen change is finished
+     */
+    public abstract void onNextScreenChangeFinished(@NonNull Runnable runnable);
 }

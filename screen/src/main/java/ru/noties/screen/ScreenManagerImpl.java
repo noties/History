@@ -17,6 +17,7 @@ import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.history.Subscription;
+import ru.noties.listeners.Listeners;
 import ru.noties.screen.change.ChangeCallback;
 import ru.noties.screen.change.ChangeController;
 import ru.noties.screen.plugin.Plugin;
@@ -49,6 +50,8 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     private final Map<Class<? extends Plugin>, Plugin> plugins;
 
     private final ChangeLock changeLock;
+
+    private final Listeners<Runnable> screenChangeListeners = Listeners.create(3);
 
 
     private ChangeCallback pendingChangeCallback;
@@ -167,7 +170,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
         attach(currentItem);
 
-        changeLock.lock();
+        onChangeStarted();
 
         pendingChangeCallback = changeController.forward(
                 this,
@@ -177,9 +180,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
                     @Override
                     public void run() {
 
-                        pendingChangeCallback = null;
-
-                        changeLock.unlock();
+                        onChangeFinished();
 
                         if (!pendingChangeCancelled
                                 && activityResumed) {
@@ -209,7 +210,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         // now, obtain item to appear
         final ScreenManagerItem<K> toAppearItem = onPoppedToAppear(toAppear, items.size() - 2);
 
-        changeLock.lock();
+        onChangeStarted();
 
         pendingChangeCallback = changeController.back(
                 this,
@@ -219,9 +220,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
                     @Override
                     public void run() {
 
-                        pendingChangeCallback = null;
-
-                        changeLock.unlock();
+                        onChangeFinished();
 
                         if (toAppearItem != null
                                 && !pendingChangeCancelled
@@ -257,15 +256,13 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
         final ScreenManagerItem<K> toAppearItem = onPoppedToAppear(toAppear, items.size() - popped.size() - 1);
 
-        changeLock.lock();
+        onChangeStarted();
 
         final Runnable endAction = new Runnable() {
             @Override
             public void run() {
 
-                pendingChangeCallback = null;
-
-                changeLock.unlock();
+                onChangeFinished();
 
                 if (toAppearItem != null
                         && !pendingChangeCancelled
@@ -502,6 +499,29 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     @Override
     public boolean isChangingScreens() {
         return pendingChangeCallback != null;
+    }
+
+    @Override
+    public void onNextScreenChangeFinished(@NonNull Runnable runnable) {
+        screenChangeListeners.add(runnable);
+    }
+
+    private void onChangeStarted() {
+        changeLock.lock();
+    }
+
+    private void onChangeFinished() {
+
+        pendingChangeCallback = null;
+
+        changeLock.unlock();
+
+        if (screenChangeListeners.size() > 0) {
+            for (Runnable runnable : screenChangeListeners.begin()) {
+                runnable.run();
+            }
+            screenChangeListeners.clear();
+        }
     }
 
     private static abstract class ReplaceEndAction<K extends Enum<K>> {
