@@ -26,7 +26,7 @@ public abstract class Screen<K extends Enum<K>, S extends Parcelable> {
     public final K key;
 
     @NonNull
-    public final S state;
+    protected final S state;
 
 
     private ScreenManager<K> manager;
@@ -172,6 +172,11 @@ public abstract class Screen<K extends Enum<K>, S extends Parcelable> {
     @NonNull
     public History<K> history() {
         return manager.history();
+    }
+
+    @NonNull
+    public S state() {
+        return state;
     }
 
     /**

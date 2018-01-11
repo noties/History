@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenManager;
 
+@SuppressWarnings("unused")
 public final class SingleChangeNoOp<K extends Enum<K>> implements SingleChange<K> {
 
     @NonNull

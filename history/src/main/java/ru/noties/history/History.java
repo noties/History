@@ -22,6 +22,18 @@ public abstract class History<K extends Enum<K>> {
     }
 
     /**
+     * Factory method to create an instance of {@link HistoryBuilder}. Please note as {@link History}
+     * requires no configuration this builder is used to create {@link HistoryState} only
+     *
+     * @param keyType enum type of keys
+     * @return new instance of {@link HistoryBuilder}
+     */
+    @NonNull
+    public static <K extends Enum<K>> HistoryBuilder<K> builder(@NonNull Class<K> keyType) {
+        return new HistoryBuilder<>();
+    }
+
+    /**
      * Interface to listen for history changes
      *
      * @see #observe(Observer)

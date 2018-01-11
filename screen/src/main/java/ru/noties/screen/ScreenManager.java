@@ -52,7 +52,6 @@ public abstract class ScreenManager<K extends Enum<K>> {
     @Nullable
     public abstract Screen<K, ? extends Parcelable> findScreen(@NonNull Entry<K> entry);
 
-    // todo: maybe remove it
     /**
      * @param screen {@link Screen} for which to resolve visibility
      * @return {@link Visibility} of supplied {@link Screen} or null if screen is not attached
@@ -73,4 +72,10 @@ public abstract class ScreenManager<K extends Enum<K>> {
 
     @NonNull
     public abstract <P extends Plugin> P plugin(@NonNull Class<P> plugin) throws IllegalStateException;
+
+    /**
+     * @return a boolean indicating if there is currently a {@link ru.noties.screen.change.Change}
+     * running (transition between screens)
+     */
+    public abstract boolean isChangingScreens();
 }

@@ -499,6 +499,11 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         return (P) p;
     }
 
+    @Override
+    public boolean isChangingScreens() {
+        return pendingChangeCallback != null;
+    }
+
     private static abstract class ReplaceEndAction<K extends Enum<K>> {
         abstract void run(@NonNull ScreenManagerItem<K> previousItem);
     }

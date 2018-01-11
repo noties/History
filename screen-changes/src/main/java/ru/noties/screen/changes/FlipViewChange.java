@@ -141,12 +141,12 @@ public class FlipViewChange extends BaseViewChange {
                 timeline
                         .push(Tween.to(to, Rotation.X, duration).target(toX))
                         .push(Tween.set(from, Alpha.VIEW).target(1.F))
-                        .push(Tween.set(to, Alpha.VIEW).target(0))
+//                        .push(Tween.set(to, Alpha.VIEW).target(0))
                         .push(Tween.to(from, Rotation.X, duration).target(fromX));
             } else {
                 timeline
                         .push(Tween.to(from, Rotation.X, duration).target(fromX))
-                        .push(Tween.set(from, Alpha.VIEW).target(0))
+//                        .push(Tween.set(from, Alpha.VIEW).target(0))
                         .push(Tween.set(to, Alpha.VIEW).target(1.F))
                         .push(Tween.to(to, Rotation.X, duration).target(toX));
             }

@@ -66,22 +66,6 @@ public abstract class ViewChange extends Change {
 
         //noinspection unchecked
         return super.applyNow(reverse, manager, from, to, endAction);
-
-//        final ViewGroup container = manager.container();
-//        final View fromView = from.view();
-//        final View toView = to.view();
-//
-//        applyStartValues(reverse, container, fromView, toView);
-//
-//        executeChange(reverse, container, fromView, toView, endAction);
-//
-//        return new ChangeCallback() {
-//            @Override
-//            public void cancel() {
-//                cancelChange(reverse, container, fromView, toView);
-//                endAction.run();
-//            }
-//        };
     }
 
     @Override

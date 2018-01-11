@@ -13,6 +13,7 @@ import ru.noties.debug.AndroidLogDebugOutput;
 import ru.noties.debug.Debug;
 import ru.noties.history.Entry;
 import ru.noties.history.History;
+import ru.noties.history.HistoryBuilder;
 import ru.noties.history.HistoryState;
 import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenLayout;
@@ -58,14 +59,15 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        final ScreenLayout screenLayout = findViewById(R.id.screen_layout);
+        final HistoryBar historyBar = findViewById(R.id.history_bar);
+
         final ScreenProvider<ScreenKey> screenProvider = ScreenProvider.builder(ScreenKey.class)
                 .register(ScreenKey.CONTENT, ContentScreen::new)
                 .build();
 
         final History<ScreenKey> history = History.create(ScreenKey.class);
 
-        final ScreenLayout screenLayout = findViewById(R.id.screen_layout);
-        final HistoryBar historyBar = findViewById(R.id.history_bar);
         historyBar.setHistory(history);
 
         screenManager = ScreenManager.builder(history, screenProvider)
@@ -73,6 +75,19 @@ public class MainActivity extends Activity {
                 .changeController(new ChangeControllerImpl(createChanges()))
                 .addPlugin(new ColorsPlugin(colors))
                 .build(this, screenLayout);
+
+        if (true) {
+
+            final HistoryBuilder<ScreenKey> historyBuilder = History.builder(ScreenKey.class);
+
+            // test pre-building the history
+            for (int i = 0; i < 100; i++) {
+                historyBuilder.push(ScreenKey.CONTENT, new ContentState(i, colors.next()));
+            }
+
+            screenManager.restoreState(historyBuilder.build());
+            return;
+        }
 
 //        history.observe(new LoggingObserver<>());
 //        screenManager.screenCallbacks(new LoggingScreenLifecycleCallbacks<>());
@@ -84,6 +99,12 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
+
+        // ignore back pressed event if there is a running change
+        if (screenManager.isChangingScreens()) {
+            return;
+        }
+
         if (!screenManager.history().pop()) {
             super.onBackPressed();
         }
@@ -98,7 +119,7 @@ public class MainActivity extends Activity {
     @NonNull
     private static List<Change<ScreenKey>> createChanges() {
 
-        final long duration = 250L;
+        final long duration = 400;
 
         final List<Change<ScreenKey>> changes = new ArrayList<>();
 
@@ -112,10 +133,10 @@ public class MainActivity extends Activity {
         changes.add(DepthViewChange.fromRight(duration));
         changes.add(DepthViewChange.fromBottom(duration));
 
-        changes.add(ZoomOutViewChange.fromLeft(duration * 3));
-        changes.add(ZoomOutViewChange.fromTop(duration * 3));
-        changes.add(ZoomOutViewChange.fromRight(duration * 3));
-        changes.add(ZoomOutViewChange.fromBottom(duration * 3));
+        changes.add(ZoomOutViewChange.fromLeft(duration * 2));
+        changes.add(ZoomOutViewChange.fromTop(duration * 2));
+        changes.add(ZoomOutViewChange.fromRight(duration * 2));
+        changes.add(ZoomOutViewChange.fromBottom(duration * 2));
 
         changes.add(AccordionViewChange.fromLeft(duration));
         changes.add(AccordionViewChange.fromTop(duration));
@@ -151,7 +172,7 @@ public class MainActivity extends Activity {
                 return ChangeCallbackNoOp.noOp(endAction);
             }
 
-            final ContentState state = (ContentState) from.state;
+            final ContentState state = (ContentState) from.state();
             final int index = (state.value() % changes.size());
             return changes.get(index).apply(false, manager, from, to, endAction);
         }
@@ -164,7 +185,7 @@ public class MainActivity extends Activity {
                 return ChangeCallbackNoOp.noOp(endAction);
             }
 
-            final ContentState state = (ContentState) to.state;
+            final ContentState state = (ContentState) to.state();
             final int index = (state.value() % changes.size());
             return changes.get(index).apply(true, manager, to, from, endAction);
         }
