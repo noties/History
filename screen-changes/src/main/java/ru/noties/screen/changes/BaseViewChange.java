@@ -15,6 +15,11 @@ abstract class BaseViewChange extends ViewChange {
         return ViewTweenManager.get(R.id.changes_tumbleweed_manager, container);
     }
 
+    @Override
+    protected void cancelChange(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
+        tweenManager(container).killAll();
+    }
+
     void resetPivot(@NonNull View from, @NonNull View to) {
 
         from.setPivotX(from.getWidth() / 2);

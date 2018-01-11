@@ -200,7 +200,7 @@ public class CubeOutViewChange extends BaseViewChange {
 
     @Override
     protected void cancelChange(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
+        super.cancelChange(reverse, container, from, to);
         resetPivot(from, to);
-        tweenManager(container).killAll();
     }
 }

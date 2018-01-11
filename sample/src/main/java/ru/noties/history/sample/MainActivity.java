@@ -19,14 +19,15 @@ import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenLayout;
 import ru.noties.screen.ScreenManager;
 import ru.noties.screen.ScreenProvider;
+import ru.noties.screen.change.AlphaViewChange;
 import ru.noties.screen.change.Change;
 import ru.noties.screen.change.ChangeCallback;
 import ru.noties.screen.change.ChangeCallbackNoOp;
 import ru.noties.screen.change.ChangeController;
+import ru.noties.screen.change.SlideViewChange;
 import ru.noties.screen.changes.AccordionViewChange;
 import ru.noties.screen.changes.CubeOutViewChange;
 import ru.noties.screen.changes.DepthViewChange;
-import ru.noties.screen.changes.FlipViewChange;
 import ru.noties.screen.changes.ParallaxViewChange;
 import ru.noties.screen.changes.ZoomOutViewChange;
 
@@ -143,15 +144,17 @@ public class MainActivity extends Activity {
         changes.add(AccordionViewChange.fromRight(duration));
         changes.add(AccordionViewChange.fromBottom(duration));
 
-        changes.add(FlipViewChange.fromLeft(duration * 2));
-        changes.add(FlipViewChange.fromTop(duration * 2));
-        changes.add(FlipViewChange.fromRight(duration * 2));
-        changes.add(FlipViewChange.fromBottom(duration * 2));
-
         changes.add(ParallaxViewChange.fromLeft(duration));
         changes.add(ParallaxViewChange.fromTop(duration));
         changes.add(ParallaxViewChange.fromRight(duration));
         changes.add(ParallaxViewChange.fromBottom(duration));
+
+        changes.add(SlideViewChange.fromLeft(duration));
+        changes.add(SlideViewChange.fromTop(duration));
+        changes.add(SlideViewChange.fromRight(duration));
+        changes.add(SlideViewChange.fromBottom(duration));
+
+        changes.add(AlphaViewChange.create(duration));
 
         return changes;
     }

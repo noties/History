@@ -174,9 +174,4 @@ public class ZoomOutViewChange extends BaseViewChange {
                 })
                 .start(tweenManager(container));
     }
-
-    @Override
-    protected void cancelChange(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
-        tweenManager(container).killAll();
-    }
 }
