@@ -20,6 +20,9 @@ public abstract class OnBackPressedPlugin implements Plugin {
         return new Impl();
     }
 
+    /**
+     * @return a boolean indicating if back pressed event was consumed by the plugin
+     */
     public abstract boolean onBackPressed();
 
     @NonNull

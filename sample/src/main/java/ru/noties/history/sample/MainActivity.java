@@ -1,34 +1,22 @@
 package ru.noties.history.sample;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import ru.noties.debug.AndroidLogDebugOutput;
 import ru.noties.debug.Debug;
 import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
-import ru.noties.screen.Screen;
+import ru.noties.screen.BackPressedUtils;
 import ru.noties.screen.ScreenLayout;
 import ru.noties.screen.ScreenManager;
 import ru.noties.screen.ScreenProvider;
-import ru.noties.screen.change.AlphaViewChange;
-import ru.noties.screen.change.Change;
-import ru.noties.screen.change.ChangeCallback;
-import ru.noties.screen.change.ChangeCallbackNoOp;
-import ru.noties.screen.change.ChangeController;
-import ru.noties.screen.change.SlideViewChange;
-import ru.noties.screen.changes.AccordionViewChange;
-import ru.noties.screen.changes.CubeOutViewChange;
-import ru.noties.screen.changes.DepthViewChange;
-import ru.noties.screen.changes.ParallaxViewChange;
-import ru.noties.screen.changes.ZoomOutViewChange;
+import ru.noties.screen.plugin.ActivityResultPlugin;
+import ru.noties.screen.plugin.OnBackPressedPlugin;
+import ru.noties.screen.plugin.PermissionResultPlugin;
 
 public class MainActivity extends Activity {
 
@@ -39,16 +27,22 @@ public class MainActivity extends Activity {
     // todo: visibility offset (dynamic) + maybe modify it in runtime (+ detach?)
     // todo: maybe manual transition? can we do that?
 
-    // todo: what if we will call visibility provider for each entry? this way it would be easy to
-    //      implement offset (so, no more than certain amount of views are hold in layout)
-
     private static final String KEY_STATE = "key.STATE";
 
     static {
         Debug.init(new AndroidLogDebugOutput(true));
     }
 
+
+    private final OnBackPressedPlugin onBackPressedPlugin = OnBackPressedPlugin.create();
+
+    private final ActivityResultPlugin activityResultPlugin = ActivityResultPlugin.create();
+
+    private final PermissionResultPlugin permissionResultPlugin = PermissionResultPlugin.create();
+
+
     private final Colors colors = Colors.create();
+
 
     private ScreenManager<ScreenKey> screenManager;
 
@@ -71,8 +65,9 @@ public class MainActivity extends Activity {
 
         screenManager = ScreenManager.builder(history, screenProvider)
                 .changeLock(screenLayout)
-                .changeController(new ChangeControllerImpl(createChanges()))
+                .changeController(ChangeControllerCollection.create(400))
                 .addPlugin(new ColorsPlugin(colors))
+                .addPlugins(onBackPressedPlugin, activityResultPlugin, permissionResultPlugin)
                 .build(this, screenLayout);
 
 //        history.observe(new LoggingObserver<>());
@@ -85,13 +80,7 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-
-        // ignore back pressed event if there is a running change
-        if (screenManager.isChangingScreens()) {
-            return;
-        }
-
-        if (!screenManager.history().pop()) {
+        if (!BackPressedUtils.onBackPressed(screenManager)) {
             super.onBackPressed();
         }
     }
@@ -102,80 +91,17 @@ public class MainActivity extends Activity {
         outState.putParcelable(KEY_STATE, screenManager.history().save());
     }
 
-    @NonNull
-    private static List<Change<ScreenKey>> createChanges() {
-
-        final long duration = 400;
-
-        final List<Change<ScreenKey>> changes = new ArrayList<>();
-
-        changes.add(CubeOutViewChange.fromLeft(duration));
-        changes.add(CubeOutViewChange.fromTop(duration));
-        changes.add(CubeOutViewChange.fromRight(duration));
-        changes.add(CubeOutViewChange.fromBottom(duration));
-
-        changes.add(DepthViewChange.fromLeft(duration));
-        changes.add(DepthViewChange.fromTop(duration));
-        changes.add(DepthViewChange.fromRight(duration));
-        changes.add(DepthViewChange.fromBottom(duration));
-
-        changes.add(ZoomOutViewChange.fromLeft(duration * 2));
-        changes.add(ZoomOutViewChange.fromTop(duration * 2));
-        changes.add(ZoomOutViewChange.fromRight(duration * 2));
-        changes.add(ZoomOutViewChange.fromBottom(duration * 2));
-
-        changes.add(AccordionViewChange.fromLeft(duration));
-        changes.add(AccordionViewChange.fromTop(duration));
-        changes.add(AccordionViewChange.fromRight(duration));
-        changes.add(AccordionViewChange.fromBottom(duration));
-
-        changes.add(ParallaxViewChange.fromLeft(duration));
-        changes.add(ParallaxViewChange.fromTop(duration));
-        changes.add(ParallaxViewChange.fromRight(duration));
-        changes.add(ParallaxViewChange.fromBottom(duration));
-
-        changes.add(SlideViewChange.fromLeft(duration));
-        changes.add(SlideViewChange.fromTop(duration));
-        changes.add(SlideViewChange.fromRight(duration));
-        changes.add(SlideViewChange.fromBottom(duration));
-
-        changes.add(AlphaViewChange.create(duration));
-
-        return changes;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (!activityResultPlugin.onActivityResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
-    private static class ChangeControllerImpl extends ChangeController<ScreenKey> {
-
-        private final List<Change<ScreenKey>> changes;
-
-        private ChangeControllerImpl(@NonNull List<Change<ScreenKey>> changes) {
-            this.changes = changes;
-        }
-
-        @NonNull
-        @Override
-        public ChangeCallback forward(@NonNull ScreenManager<ScreenKey> manager, @Nullable Screen<ScreenKey, ? extends Parcelable> from, @NonNull Screen<ScreenKey, ? extends Parcelable> to, @NonNull Runnable endAction) {
-
-            if (from == null) {
-                return ChangeCallbackNoOp.noOp(endAction);
-            }
-
-            final ContentState state = (ContentState) from.state();
-            final int index = (state.value() % changes.size());
-            return changes.get(index).apply(false, manager, from, to, endAction);
-        }
-
-        @NonNull
-        @Override
-        public ChangeCallback back(@NonNull ScreenManager<ScreenKey> manager, @NonNull Screen<ScreenKey, ? extends Parcelable> from, @Nullable Screen<ScreenKey, ? extends Parcelable> to, @NonNull Runnable endAction) {
-
-            if (to == null) {
-                return ChangeCallbackNoOp.noOp(endAction);
-            }
-
-            final ContentState state = (ContentState) to.state();
-            final int index = (state.value() % changes.size());
-            return changes.get(index).apply(true, manager, to, from, endAction);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (!permissionResultPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

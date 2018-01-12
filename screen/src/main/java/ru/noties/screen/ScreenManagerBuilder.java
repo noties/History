@@ -135,6 +135,21 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
     /**
      * By default has no registered plugins
      *
+     * @param plugins an array of {@link Plugin} to register
+     * @return self for chaining
+     */
+    @NonNull
+    public ScreenManagerBuilder<K> addPlugins(@NonNull Plugin... plugins) {
+        for (Plugin plugin : plugins) {
+            checkNotNull(plugin, "Cannot add null plugin");
+            addPlugin(plugin);
+        }
+        return this;
+    }
+
+    /**
+     * By default has no registered plugins
+     *
      * @param plugins a collection of {@link Plugin} tp register
      * @return self for chaining
      * @see #addPlugin(Plugin)
