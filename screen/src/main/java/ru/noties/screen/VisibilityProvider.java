@@ -8,6 +8,7 @@ import ru.noties.history.Entry;
 /**
  * @see ScreenManagerBuilder#visibilityProvider(VisibilityProvider)
  */
+@SuppressWarnings("WeakerAccess")
 public abstract class VisibilityProvider<K extends Enum<K>> {
 
     /**

@@ -1,7 +1,7 @@
 package ru.noties.screen;
 
 /**
- * Simple holder of available lifecycle events to be listen to.
+ * Simple holder of available lifecycle events to be listened to.
  * As the INIT is the earliest when subscription can occur it\'s not included in this class.
  *
  * @see ScreenLifecycle#on(LifecycleEvent, ScreenLifecycle.Action)
