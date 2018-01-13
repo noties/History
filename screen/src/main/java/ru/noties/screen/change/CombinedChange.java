@@ -2,6 +2,7 @@ package ru.noties.screen.change;
 
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenManager;
@@ -25,7 +26,7 @@ public class CombinedChange<K extends Enum<K>> extends Change<K> {
         this.toChange = toChange;
     }
 
-    @NonNull
+    @Nullable
     @Override
     protected final ChangeCallback applyNow(
             boolean reverse,
@@ -47,9 +48,16 @@ public class CombinedChange<K extends Enum<K>> extends Change<K> {
             }
         };
 
-        return new CombinedChangeCallback()
-                .from(fromChange.apply(reverse, manager, from, combinedAction))
-                .to(toChange.apply(reverse, manager, to, combinedAction));
+        final ChangeCallback fromCallback = fromChange.apply(reverse, manager, from, combinedAction);
+        final ChangeCallback toCallback = toChange.apply(reverse, manager, to, combinedAction);
+
+        if (fromCallback != null || toCallback != null) {
+            return new CombinedChangeCallback()
+                    .from(fromCallback)
+                    .to(toCallback);
+        } else {
+            return null;
+        }
     }
 
     @Override

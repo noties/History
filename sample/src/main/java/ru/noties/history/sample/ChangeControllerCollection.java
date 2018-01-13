@@ -70,7 +70,7 @@ class ChangeControllerCollection extends ChangeController<ScreenKey> {
         this.changes = changes;
     }
 
-    @NonNull
+    @Nullable
     @Override
     public ChangeCallback forward(@NonNull ScreenManager<ScreenKey> manager, @Nullable Screen<ScreenKey, ? extends Parcelable> from, @NonNull Screen<ScreenKey, ? extends Parcelable> to, @NonNull Runnable endAction) {
 
@@ -83,7 +83,7 @@ class ChangeControllerCollection extends ChangeController<ScreenKey> {
         return changes.get(index).apply(false, manager, from, to, endAction);
     }
 
-    @NonNull
+    @Nullable
     @Override
     public ChangeCallback back(@NonNull ScreenManager<ScreenKey> manager, @NonNull Screen<ScreenKey, ? extends Parcelable> from, @Nullable Screen<ScreenKey, ? extends Parcelable> to, @NonNull Runnable endAction) {
 

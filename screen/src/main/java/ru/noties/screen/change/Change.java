@@ -2,6 +2,7 @@ package ru.noties.screen.change;
 
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
@@ -11,7 +12,7 @@ import ru.noties.screen.ScreenManager;
 @SuppressWarnings("WeakerAccess")
 public abstract class Change<K extends Enum<K>> {
 
-    @NonNull
+    @Nullable
     public ChangeCallback apply(
             boolean reverse,
             @NonNull ScreenManager<K> manager,
@@ -32,7 +33,7 @@ public abstract class Change<K extends Enum<K>> {
         return changeCallback;
     }
 
-    @NonNull
+    @Nullable
     protected ChangeCallback applyNow(
             final boolean reverse,
             @NonNull final ScreenManager<K> manager,
@@ -76,7 +77,7 @@ public abstract class Change<K extends Enum<K>> {
             @NonNull Screen<K, ? extends Parcelable> to
     );
 
-    @NonNull
+    @Nullable
     protected ChangeCallback applyWhenReady(
             final boolean reverse,
             @NonNull final ScreenManager<K> manager,

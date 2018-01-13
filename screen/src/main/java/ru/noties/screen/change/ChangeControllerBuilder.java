@@ -109,7 +109,7 @@ public class ChangeControllerBuilder<K extends Enum<K>> {
             this.defaultChange = defaultChange;
         }
 
-        @NonNull
+        @Nullable
         @Override
         public ChangeCallback forward(@NonNull ScreenManager<K> manager, @Nullable Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to, @NonNull Runnable endAction) {
             return from != null
@@ -117,7 +117,7 @@ public class ChangeControllerBuilder<K extends Enum<K>> {
                     : ChangeCallbackNoOp.noOp(endAction);
         }
 
-        @NonNull
+        @Nullable
         @Override
         public ChangeCallback back(@NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @Nullable Screen<K, ? extends Parcelable> to, @NonNull Runnable endAction) {
             return to != null

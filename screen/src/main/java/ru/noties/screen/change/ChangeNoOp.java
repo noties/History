@@ -2,6 +2,7 @@ package ru.noties.screen.change;
 
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenManager;
@@ -15,7 +16,7 @@ public final class ChangeNoOp<K extends Enum<K>> extends Change<K> {
         return INSTANCE;
     }
 
-    @NonNull
+    @Nullable
     @Override
     protected ChangeCallback applyNow(
             boolean reverse,

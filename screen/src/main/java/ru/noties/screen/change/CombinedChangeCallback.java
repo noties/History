@@ -1,6 +1,7 @@
 package ru.noties.screen.change;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 public class CombinedChangeCallback implements ChangeCallback {
 
@@ -20,13 +21,13 @@ public class CombinedChangeCallback implements ChangeCallback {
     }
 
     @NonNull
-    public CombinedChangeCallback from(@NonNull ChangeCallback changeCallback) {
+    public CombinedChangeCallback from(@Nullable ChangeCallback changeCallback) {
         this.from = changeCallback;
         return this;
     }
 
     @NonNull
-    public CombinedChangeCallback to(@NonNull ChangeCallback changeCallback) {
+    public CombinedChangeCallback to(@Nullable ChangeCallback changeCallback) {
         this.to = changeCallback;
         return this;
     }

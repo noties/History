@@ -52,6 +52,8 @@ public class CubeOutViewChange extends BaseViewChange {
     @Override
     protected void applyStartValues(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
 
+        androidMBeforeScaling(container);
+
         if (isHorizontal) {
 
             final float fromY;
@@ -121,7 +123,7 @@ public class CubeOutViewChange extends BaseViewChange {
     }
 
     @Override
-    protected void executeChange(boolean reverse, @NonNull ViewGroup container, @NonNull final View from, @NonNull final View to, @NonNull final Runnable endAction) {
+    protected void executeChange(boolean reverse, @NonNull final ViewGroup container, @NonNull final View from, @NonNull final View to, @NonNull final Runnable endAction) {
 
         final TimelineDef timeline = Timeline.createParallel();
 
@@ -191,7 +193,7 @@ public class CubeOutViewChange extends BaseViewChange {
                 .callback(TweenCallback.END, new TweenCallback() {
                     @Override
                     public void onEvent(int type, @NonNull BaseTween source) {
-                        resetPivot(from, to);
+                        cleanUp(container, from, to);
                         endAction.run();
                     }
                 })
@@ -200,7 +202,12 @@ public class CubeOutViewChange extends BaseViewChange {
 
     @Override
     protected void cancelChange(boolean reverse, @NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
+        cleanUp(container, from, to);
         super.cancelChange(reverse, container, from, to);
+    }
+
+    protected void cleanUp(@NonNull ViewGroup container, @NonNull View from, @NonNull View to) {
         resetPivot(from, to);
+        androidMAfterScaling(container);
     }
 }

@@ -1,6 +1,7 @@
 package ru.noties.screen.change;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -30,7 +31,7 @@ public abstract class SingleViewChange implements SingleChange {
     );
 
 
-    @NonNull
+    @Nullable
     @Override
     public final ChangeCallback apply(
             boolean reverse,
@@ -41,7 +42,7 @@ public abstract class SingleViewChange implements SingleChange {
         return apply(reverse, manager.container(), screen.view(), endAction);
     }
 
-    @NonNull
+    @Nullable
     protected ChangeCallback apply(
             final boolean reverse,
             @NonNull final ViewGroup container,

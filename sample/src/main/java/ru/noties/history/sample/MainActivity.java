@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.List;
 
 import ru.noties.debug.AndroidLogDebugOutput;
 import ru.noties.debug.Debug;
@@ -46,6 +49,7 @@ public class MainActivity extends Activity {
 
     private ScreenManager<ScreenKey> screenManager;
 
+    enum Key {}
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +66,7 @@ public class MainActivity extends Activity {
         final History<ScreenKey> history = History.create(ScreenKey.class);
 
         historyBar.setHistory(history);
+
 
         screenManager = ScreenManager.builder(history, screenProvider)
                 .changeLock(screenLayout)
@@ -80,6 +85,43 @@ public class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
+
+        if (true) {
+
+            final boolean changing = screenManager.isChangingScreens();
+
+            Debug.i("changing: %s", changing);
+
+            if (changing) {
+                return;
+            }
+
+            OnBackPressedPlugin plugin;
+            try {
+                plugin = screenManager.plugin(OnBackPressedPlugin.class);
+            } catch (IllegalStateException e) {
+                plugin = null;
+            }
+
+            final boolean back = plugin != null && plugin.onBackPressed();
+
+            Debug.i("null: %s, back: %s", plugin == null, back);
+
+            if (back) {
+                return;
+            }
+
+            final boolean history = screenManager.history().pop();
+
+            Debug.i("history: %s", history);
+
+            if (!history) {
+                super.onBackPressed();
+            }
+
+            return;
+        }
+
         if (!BackPressedUtils.onBackPressed(screenManager)) {
             super.onBackPressed();
         }

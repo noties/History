@@ -1,6 +1,7 @@
 package ru.noties.screen.change;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -40,7 +41,7 @@ public abstract class ViewChange extends Change {
     );
 
     // final so no erased type info is not accessed
-    @NonNull
+    @Nullable
     @Override
     public final ChangeCallback apply(
             boolean reverse,
@@ -54,7 +55,7 @@ public abstract class ViewChange extends Change {
     }
 
     // final so no erased type info is accessed
-    @NonNull
+    @Nullable
     @Override
     protected final ChangeCallback applyNow(
             final boolean reverse,

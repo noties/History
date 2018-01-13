@@ -30,7 +30,7 @@ public abstract class ChangeController<K extends Enum<K>> {
         return create(CombinedChange.create(from, to));
     }
 
-    @NonNull
+    @Nullable
     public abstract ChangeCallback forward(
             @NonNull ScreenManager<K> manager,
             @Nullable Screen<K, ? extends Parcelable> from,
@@ -38,7 +38,7 @@ public abstract class ChangeController<K extends Enum<K>> {
             @NonNull Runnable endAction
     );
 
-    @NonNull
+    @Nullable
     public abstract ChangeCallback back(
             @NonNull ScreenManager<K> manager,
             @NonNull Screen<K, ? extends Parcelable> from,
@@ -58,7 +58,7 @@ public abstract class ChangeController<K extends Enum<K>> {
      * @return {@link ChangeCallback}
      */
     @SuppressWarnings("unused")
-    @NonNull
+    @Nullable
     public ChangeCallback back(
             @NonNull ScreenManager<K> manager,
             @NonNull List<Screen<K, ? extends Parcelable>> from,
@@ -79,7 +79,7 @@ public abstract class ChangeController<K extends Enum<K>> {
             this.change = change;
         }
 
-        @NonNull
+        @Nullable
         @Override
         public ChangeCallback forward(
                 @NonNull ScreenManager<K> manager,
@@ -92,7 +92,7 @@ public abstract class ChangeController<K extends Enum<K>> {
                     : change.apply(false, manager, from, to, endAction);
         }
 
-        @NonNull
+        @Nullable
         @Override
         public ChangeCallback back(
                 @NonNull ScreenManager<K> manager,

@@ -14,13 +14,13 @@ public final class ChangeControllerNoOp<K extends Enum<K>> extends ChangeControl
         return new ChangeControllerNoOp<>();
     }
 
-    @NonNull
+    @Nullable
     @Override
     public ChangeCallback forward(@NonNull ScreenManager<K> manager, @Nullable Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to, @NonNull Runnable endAction) {
         return ChangeCallbackNoOp.noOp(endAction);
     }
 
-    @NonNull
+    @Nullable
     @Override
     public ChangeCallback back(@NonNull ScreenManager<K> manager, @NonNull Screen<K, ? extends Parcelable> from, @Nullable Screen<K, ? extends Parcelable> to, @NonNull Runnable endAction) {
         return ChangeCallbackNoOp.noOp(endAction);

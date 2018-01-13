@@ -1,22 +1,16 @@
 package ru.noties.screen.change;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 @SuppressWarnings("WeakerAccess")
 public abstract class ChangeCallbackNoOp {
 
-    @NonNull
+    @Nullable
     public static ChangeCallback noOp(@NonNull Runnable endAction) {
         endAction.run();
-        return NO_OP;
+        return null;
     }
-
-    private static final ChangeCallback NO_OP = new ChangeCallback() {
-        @Override
-        public void cancel() {
-
-        }
-    };
 
     private ChangeCallbackNoOp() {
     }
