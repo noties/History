@@ -20,7 +20,7 @@ public abstract class BackPressedUtils {
 
         final boolean result;
 
-        if (manager.isChangingScreens()) {
+        if (manager.isSwitchingScreens()) {
 
             result = true;
 

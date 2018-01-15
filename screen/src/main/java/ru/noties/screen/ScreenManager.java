@@ -12,6 +12,7 @@ import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.history.Subscription;
 import ru.noties.screen.plugin.Plugin;
+import ru.noties.screen.transit.ScreenSwitch;
 
 @SuppressWarnings("unused")
 public abstract class ScreenManager<K extends Enum<K>> {
@@ -76,13 +77,13 @@ public abstract class ScreenManager<K extends Enum<K>> {
     public abstract <P extends Plugin> P plugin(@NonNull Class<P> plugin) throws IllegalStateException;
 
     /**
-     * @return a boolean indicating if there is currently a {@link ru.noties.screen.change.Change}
+     * @return a boolean indicating if there is currently a {@link ScreenSwitch}
      * running (transition between screens)
      */
-    public abstract boolean isChangingScreens();
+    public abstract boolean isSwitchingScreens();
 
     /**
      * @param runnable that will be run when next screen change is finished
      */
-    public abstract void onNextScreenChangeFinished(@NonNull Runnable runnable);
+    public abstract void onNextScreenSwitchFinished(@NonNull Runnable runnable);
 }

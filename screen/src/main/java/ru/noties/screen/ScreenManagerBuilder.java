@@ -14,9 +14,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ru.noties.history.History;
-import ru.noties.screen.change.ChangeController;
-import ru.noties.screen.change.ChangeControllerNoOp;
 import ru.noties.screen.plugin.Plugin;
+import ru.noties.screen.transit.SwitchController;
+import ru.noties.screen.transit.SwitchEngineNoOp;
+import ru.noties.screen.transit.SwitchLock;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class ScreenManagerBuilder<K extends Enum<K>> {
@@ -48,16 +49,9 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         return this;
     }
 
-    /**
-     * By default does not animate any changes (all changes are happen immediately)
-     *
-     * @param changeController {@link ChangeController}
-     * @return self for chaining
-     * @see ChangeController#builder(Class)
-     */
     @NonNull
-    public ScreenManagerBuilder<K> changeController(@NonNull ChangeController<K> changeController) {
-        this.changeController = changeController;
+    public ScreenManagerBuilder<K> switchController(@NonNull SwitchController<K> switchController) {
+        this.switchController = switchController;
         return this;
     }
 
@@ -166,13 +160,13 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
     /**
      * By default has not change lock
      *
-     * @param changeLock {@link ChangeLock}
+     * @param switchLock {@link SwitchLock}
      * @return self for chaining
      * @see ScreenLayout
      */
     @NonNull
-    public ScreenManagerBuilder<K> changeLock(@NonNull ChangeLock changeLock) {
-        this.changeLock = changeLock;
+    public ScreenManagerBuilder<K> switchLock(@NonNull SwitchLock switchLock) {
+        this.switchLock = switchLock;
         return this;
     }
 
@@ -186,11 +180,11 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         checkNotNull(history, "History is required in order to build ScreenManager");
         checkNotNull(screenProvider, "ScreenProvider is required in order to build ScreenManager");
 
-        final ChangeController<K> controller;
-        if (changeController == null) {
-            controller = ChangeControllerNoOp.create();
+        final SwitchController<K> controller;
+        if (switchController == null) {
+            controller = SwitchController.create(SwitchEngineNoOp.<K>create());
         } else {
-            controller = changeController;
+            controller = switchController;
         }
 
         final VisibilityProvider<K> provider;
@@ -200,11 +194,11 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
             provider = visibilityProvider;
         }
 
-        final ChangeLock lock;
-        if (changeLock == null) {
+        final SwitchLock lock;
+        if (switchLock == null) {
             lock = CHANGE_LOCK_NO_OP;
         } else {
-            lock = changeLock;
+            lock = switchLock;
         }
 
         return new ScreenManagerImpl<>(
@@ -232,12 +226,12 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
 
     private History<K> history;
     private ScreenProvider<K> screenProvider;
-    private ChangeController<K> changeController;
+    private SwitchController<K> switchController;
     private VisibilityProvider<K> visibilityProvider;
     private LayoutInflater layoutInflater;
     private boolean detachLastView;
     private final Map<Class<? extends Plugin>, Plugin> plugins = new HashMap<>(3);
-    private ChangeLock changeLock;
+    private SwitchLock switchLock;
 
     private boolean isBuilt;
 
@@ -256,7 +250,7 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         }
     }
 
-    private static final ChangeLock CHANGE_LOCK_NO_OP = new ChangeLock() {
+    private static final SwitchLock CHANGE_LOCK_NO_OP = new SwitchLock() {
         @Override
         public void lock() {
 

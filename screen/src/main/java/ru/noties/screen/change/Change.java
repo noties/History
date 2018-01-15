@@ -12,6 +12,20 @@ import ru.noties.screen.ScreenManager;
 @SuppressWarnings("WeakerAccess")
 public abstract class Change<K extends Enum<K>> {
 
+    // todo: so, maybe providing the `fraction` of process is way better that actual animation
+    //      this means that we will need to have our dispatching mechanism, but it's OK, as a plus
+    //      we could abstract actual duration and interpolator from animation (which is good) and
+    //      make then configurable, plus we could reuse this change is ManualChange (by some touch
+    //      event of whatever) which is really cool
+    //
+    // we could encorporate holder pattern (createHolder(container, from, to)) when starting
+    //      and then call `update(Holder, float fraction); also, what to do with cancellation...
+    //      we could provide ready implementation, that...jumps to the end?...hm
+    //
+    // the thing is.. if we do only this, we would break the usage of transitions and all other
+    //      animations... can we have both? but transitions cannot be manually updated with fraction,
+    //      so..
+
     @Nullable
     public ChangeCallback apply(
             boolean reverse,
