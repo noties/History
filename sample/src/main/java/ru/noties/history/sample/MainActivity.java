@@ -3,13 +3,7 @@ package ru.noties.history.sample;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.view.View;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import ru.noties.debug.AndroidLogDebugOutput;
 import ru.noties.debug.Debug;
@@ -17,20 +11,13 @@ import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.screen.BackPressedUtils;
-import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenLayout;
 import ru.noties.screen.ScreenManager;
 import ru.noties.screen.ScreenProvider;
-import ru.noties.screen.Visibility;
-import ru.noties.screen.VisibilityProvider;
 import ru.noties.screen.plugin.ActivityResultPlugin;
 import ru.noties.screen.plugin.OnBackPressedPlugin;
 import ru.noties.screen.plugin.PermissionResultPlugin;
-import ru.noties.screen.transit.ScreenSwitch;
-import ru.noties.screen.transit.SwitchController;
-import ru.noties.screen.transit.SwitchEngine;
-import ru.noties.screen.transit.SwitchEngineCallback;
-import ru.noties.screen.transit.ValueAnimatorEngine;
+import ru.noties.screen.transit.Edge;
 
 public class MainActivity extends Activity {
 
@@ -78,8 +65,7 @@ public class MainActivity extends Activity {
 
         screenManager = ScreenManager.builder(history, screenProvider)
                 .switchLock(screenLayout)
-                .visibilityProvider(VisibilityProvider.create(Visibility.VISIBLE))
-                .switchController(new Controller())
+                .switchController(new AllSwitchController(Edge.RIGHT))
                 .addPlugin(new ColorsPlugin(colors))
                 .addPlugins(onBackPressedPlugin, activityResultPlugin, permissionResultPlugin)
                 .build(this, screenLayout);
@@ -116,73 +102,6 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (!permissionResultPlugin.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
-
-    private static class Controller extends SwitchController<ScreenKey> {
-
-        private final List<SwitchEngine<ScreenKey>> list;
-
-        Controller() {
-            list = new ArrayList<>(2);
-            list.add(ValueAnimatorEngine.create(new Half(false), 250L));
-            list.add(ValueAnimatorEngine.create(new Half(true), 250L));
-        }
-
-        @Nullable
-        @Override
-        protected SwitchEngineCallback apply(
-                boolean reverse,
-                @NonNull Screen<ScreenKey, ? extends Parcelable> from,
-                @NonNull Screen<ScreenKey, ? extends Parcelable> to,
-                @NonNull Runnable endAction
-        ) {
-            final ContentState state = (ContentState) from.state();
-            return list.get(state.value() % list.size()).apply(reverse, from, to, endAction);
-        }
-
-        @NonNull
-        @Override
-        public SwitchEngine<ScreenKey> switchEngine(
-                @NonNull Screen<ScreenKey, ? extends Parcelable> from,
-                @NonNull Screen<ScreenKey, ? extends Parcelable> to
-        ) {
-            final ContentState state = (ContentState) from.state();
-            return list.get(state.value() % list.size());
-        }
-    }
-
-    private static class Half extends ScreenSwitch<ScreenKey> {
-
-        private final boolean vertical;
-
-        Half(boolean vertical) {
-            this.vertical = vertical;
-        }
-
-        @Override
-        public void apply(
-                float fraction,
-                @NonNull Screen<ScreenKey, ? extends Parcelable> from,
-                @NonNull Screen<ScreenKey, ? extends Parcelable> to
-        ) {
-
-            final View fromView = from.view();
-            final View toView = to.view();
-
-            if (vertical) {
-
-                fromView.setTranslationY(-.5F * fraction * fromView.getHeight());
-
-                final int toHeight = toView.getHeight();
-                toView.setTranslationY((toHeight / 2) + (.5F * (1.F - fraction) * toHeight));
-            } else {
-
-                fromView.setTranslationX(-.5F * fraction * fromView.getWidth());
-
-                final int toWidth = toView.getWidth();
-                toView.setTranslationX((toWidth / 2) + (.5F * (1.F - fraction) * toWidth));
-            }
         }
     }
 }

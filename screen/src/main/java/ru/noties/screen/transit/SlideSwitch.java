@@ -7,27 +7,30 @@ import android.view.View;
 public abstract class SlideSwitch extends ViewSwitch {
 
     @NonNull
-    public static <K extends Enum<K>> ScreenSwitch<K> fromLeft() {
-        //noinspection unchecked
-        return new Left();
-    }
+    public static <K extends Enum<K>> ScreenSwitch<K> from(@NonNull Edge edge) {
 
-    @NonNull
-    public static <K extends Enum<K>> ScreenSwitch<K> fromTop() {
-        //noinspection unchecked
-        return new Top();
-    }
+        final SlideSwitch slideSwitch;
 
-    @NonNull
-    public static <K extends Enum<K>> ScreenSwitch<K> fromRight() {
-        //noinspection unchecked
-        return new Right();
-    }
+        switch (edge) {
 
-    @NonNull
-    public static <K extends Enum<K>> ScreenSwitch<K> fromBottom() {
+            case TOP:
+                slideSwitch = new Top();
+                break;
+
+            case RIGHT:
+                slideSwitch = new Right();
+                break;
+
+            case BOTTOM:
+                slideSwitch = new Bottom();
+                break;
+
+            default:
+                slideSwitch = new Left();
+        }
+
         //noinspection unchecked
-        return new Bottom();
+        return slideSwitch;
     }
 
     @Override

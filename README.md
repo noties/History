@@ -1,4 +1,4 @@
-![logo](https://github.com/noties/History/raw/develop/art/logo.png)
+![logo](./art/logo.png)
 
 # History
 
@@ -6,7 +6,7 @@ Utility to maintain a linear history of arbitrary entries (_backstack_ if you wi
 
 ---
 
-[gif]
+<img src="./art/gif_generic.gif" width="33%" />
 
 ---
 

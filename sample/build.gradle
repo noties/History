@@ -22,7 +22,7 @@ android {
 dependencies {
     implementation project(':history')
     implementation project(':screen')
-    implementation project(':screen-changes')
+    implementation project(':screen-tweens')
     implementation 'ru.noties:debug:3.0.0@jar'
     implementation RECYCLER_VIEW
 }
