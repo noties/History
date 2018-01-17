@@ -5,6 +5,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +52,7 @@ public final class HistoryState implements Parcelable {
         // first write size of our entries
         // then obtain entry enum type and write it
         // then iterate over all items and write:
+        //      id
         //      key ordinal
         //      parcelable type
         //      parcelable value
@@ -76,6 +78,8 @@ public final class HistoryState implements Parcelable {
                     // enum type (just use the first one)
                     writeType(dest, entry.key());
                 }
+                Log.e("hello", "" + entry.id());
+                dest.writeLong(entry.id());
                 dest.writeInt(entry.key().ordinal());
                 writeType(dest, entry.state());
                 dest.writeParcelable(entry.state(), flags);
@@ -101,14 +105,16 @@ public final class HistoryState implements Parcelable {
 
             final Enum[] constants = readEnumConstants(in);
 
+            long id;
             int ordinal;
             Parcelable parcelable;
 
             for (int i = 0; i < length; i++) {
+                id = in.readLong();
                 ordinal = in.readInt();
                 parcelable = readParcelable(in);
                 //noinspection unchecked
-                entries.add(new Entry(constants[ordinal], parcelable));
+                entries.add(new Entry(id, constants[ordinal], parcelable));
             }
         }
     }

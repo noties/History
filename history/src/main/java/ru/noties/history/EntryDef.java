@@ -9,6 +9,8 @@ import android.support.annotation.NonNull;
 @SuppressWarnings("WeakerAccess")
 public final class EntryDef<K extends Enum<K>> {
 
+    private static final EntryIdGenerator ID_GENERATOR = EntryIdGenerator.create();
+
     private final K key;
     private final Parcelable state;
 
@@ -27,6 +29,6 @@ public final class EntryDef<K extends Enum<K>> {
         }
         isBuilt = true;
 
-        return new Entry<>(key, state);
+        return new Entry<>(ID_GENERATOR.next(), key, state);
     }
 }

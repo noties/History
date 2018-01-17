@@ -21,8 +21,8 @@ android {
 
 dependencies {
     implementation project(':history')
-    implementation project(':screen')
-    implementation project(':screen-tweens')
+    implementation project(':history-screen')
+    implementation project(':history-screen-tweens')
     implementation 'ru.noties:debug:3.0.0@jar'
     implementation RECYCLER_VIEW
 }

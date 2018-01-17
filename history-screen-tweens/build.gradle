@@ -5,7 +5,6 @@ android {
     compileSdkVersion TARGET_SDK
     buildToolsVersion BUILD_TOOLS
 
-
     defaultConfig {
         minSdkVersion MIN_SDK
         targetSdkVersion TARGET_SDK
@@ -14,7 +13,11 @@ android {
     }
 }
 
+afterEvaluate {
+    generateReleaseBuildConfig.enabled = false
+}
+
 dependencies {
-    api project(':screen')
+    api project(':history-screen')
     api TUMBLEWEED_ANDROID
 }

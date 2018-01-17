@@ -14,7 +14,9 @@ public interface ScreenLifecycle {
 
     /**
      * Please note that these actions are one-shot, after event is triggered {@link Action} will
-     * be automatically disposed
+     * be automatically disposed. Also note that unlike {@link ScreenLifecycleCallbacks} these
+     * actions applied <strong>after</strong> actual event on a {@link Screen}, so for example:
+     * {@code screen.lifecycle().on(LifecycleEvent.DESTROY, () -> screen.isDestroyed() here is true)}
      *
      * @param event  {@link LifecycleEvent} when to be notified
      * @param action {@link Action} that will be triggered when specified `event` occurs

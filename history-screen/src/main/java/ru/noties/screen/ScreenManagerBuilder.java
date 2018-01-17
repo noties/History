@@ -49,6 +49,12 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         return this;
     }
 
+    /**
+     * By default there is no switch controller registered, so all Screen switches won\'t be animated
+     *
+     * @param switchController {@link SwitchController}
+     * @return self for chaining
+     */
     @NonNull
     public ScreenManagerBuilder<K> switchController(@NonNull SwitchController<K> switchController) {
         this.switchController = switchController;

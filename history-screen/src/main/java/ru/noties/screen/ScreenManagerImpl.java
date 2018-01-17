@@ -405,6 +405,12 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     @NonNull
     @Override
     public ScreenLifecycle screenLifecycle(@NonNull Screen<K, ? extends Parcelable> screen) {
+        if (!validateScreen(screen)) {
+            throw new IllegalStateException(String.format("Specified screen {key: %s.%s, state: %s} " +
+                            "is not associated with this ScreenManager instance", screen.key.getClass().getSimpleName(),
+                    screen.key.name(), screen.state
+            ));
+        }
         return eventDispatcher.lifecycle(screen);
     }
 
@@ -528,6 +534,25 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     @Override
     public void onNextScreenSwitchFinished(@NonNull Runnable runnable) {
         screenSwitchListeners.add(runnable);
+    }
+
+    @Override
+    public boolean validateScreen(@NonNull Screen<K, ? extends Parcelable> screen) {
+        final boolean result;
+        if (screen.isDestroyed()) {
+            result = false;
+        } else {
+            final int size = items.size();
+            boolean inner = false;
+            for (int i = size - 1; i >= 0; i--) {
+                if (items.get(i).screen == screen) {
+                    inner = true;
+                    break;
+                }
+            }
+            result = inner;
+        }
+        return result;
     }
 
     private void onSwitchStarted() {

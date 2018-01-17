@@ -30,12 +30,21 @@ public final class Entry<K extends Enum<K>> {
         return new EntryDef<>(key, state);
     }
 
+    private final long id;
     private final K key;
     private final Parcelable state;
 
-    Entry(@NonNull K key, @NonNull Parcelable state) {
+    Entry(long id, @NonNull K key, @NonNull Parcelable state) {
+        this.id = id;
         this.key = key;
         this.state = state;
+    }
+
+    /**
+     * @return generated id value
+     */
+    public long id() {
+        return id;
     }
 
     @NonNull
@@ -52,7 +61,8 @@ public final class Entry<K extends Enum<K>> {
     @Override
     public String toString() {
         return "Entry{" +
-                "key=" + key +
+                "id=" + id +
+                ", key=" + key +
                 ", state=" + state +
                 '}';
     }

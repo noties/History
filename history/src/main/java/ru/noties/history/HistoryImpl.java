@@ -217,8 +217,13 @@ class HistoryImpl<K extends Enum<K>> extends History<K> {
         }
 
         final List<Entry<K>> list = historyState.entries();
+
+        Entry<K> previous = null;
+
         for (Entry<K> entry : list) {
-            push(Entry.create(entry.key(), entry.state()));
+            entries.add(entry);
+            observer.onEntryPushed(previous, entry);
+            previous = entry;
         }
 
         return length() > 0;

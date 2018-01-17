@@ -35,7 +35,11 @@ public abstract class VisibilityProvider<K extends Enum<K>> {
         return VisibilityProviderBuilder.create(type);
     }
 
-    // return NULL to detach (will be reattached when becomes active again (if at all)
+    /**
+     * @param toResolve {@link Entry} that becomes inactive
+     * @param active    {@link Entry} that becomes active
+     * @return {@link Visibility} or null to detach inactive view
+     */
     @Nullable
     public abstract Visibility resolveInActiveVisibility(@NonNull Entry<K> toResolve, @NonNull Entry<K> active);
 

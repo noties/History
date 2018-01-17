@@ -21,6 +21,11 @@ public abstract class ScreenProvider<K extends Enum<K>> {
         return new ScreenProviderBuilder<>(type);
     }
 
+    /**
+     * @param key   for which {@link Screen} is requested
+     * @param state for the newly created {@link Screen}
+     * @return {@link Screen} for provided arguments
+     */
     @NonNull
     public abstract <S extends Parcelable> Screen<K, ? extends Parcelable> provide(@NonNull K key, @NonNull S state);
 }

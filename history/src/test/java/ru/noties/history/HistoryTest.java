@@ -51,7 +51,7 @@ public class HistoryTest {
     @Test
     public void empty_instance_popTo() {
         //noinspection ConstantConditions
-        assertEquals(0, history.popTo(new Entry<Key>(Key.FIRST, null)).size());
+        assertEquals(0, history.popTo(new Entry<Key>(1L, Key.FIRST, null)).size());
     }
 
     @Test
@@ -186,10 +186,5 @@ public class HistoryTest {
         public void onEntriesPopped(@NonNull List<Entry<K>> popped, @Nullable Entry<K> toAppear) {
             throw new RuntimeException();
         }
-//
-//        @Override
-//        public void onEntryRemoved(@NonNull Entry<K> entry) {
-//            throw new RuntimeException();
-//        }
     }
 }
