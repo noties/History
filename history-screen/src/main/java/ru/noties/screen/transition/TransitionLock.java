@@ -1,4 +1,4 @@
-package ru.noties.screen.transit;
+package ru.noties.screen.transition;
 
 import ru.noties.screen.ScreenLayout;
 import ru.noties.screen.ScreenManagerBuilder;
@@ -8,9 +8,9 @@ import ru.noties.screen.ScreenManagerBuilder;
  * disabling all touch events
  *
  * @see ScreenLayout
- * @see ScreenManagerBuilder#switchLock(SwitchLock)
+ * @see ScreenManagerBuilder#transitionLock(TransitionLock)
  */
-public interface SwitchLock {
+public interface TransitionLock {
 
     /**
      * Will be called before change

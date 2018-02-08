@@ -15,9 +15,9 @@ import java.util.Map;
 
 import ru.noties.history.History;
 import ru.noties.screen.plugin.Plugin;
-import ru.noties.screen.transit.SwitchController;
-import ru.noties.screen.transit.SwitchEngineNoOp;
-import ru.noties.screen.transit.SwitchLock;
+import ru.noties.screen.transition.TransitionLock;
+import ru.noties.screen.transition.ScreenTransition;
+import ru.noties.screen.transition.TransitionController;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public class ScreenManagerBuilder<K extends Enum<K>> {
@@ -52,26 +52,26 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
     /**
      * By default there is no switch controller registered, so all Screen switches won\'t be animated
      *
-     * @param switchController {@link SwitchController}
+     * @param transitionController {@link TransitionController}
      * @return self for chaining
      */
     @NonNull
-    public ScreenManagerBuilder<K> switchController(@NonNull SwitchController<K> switchController) {
-        this.switchController = switchController;
+    public ScreenManagerBuilder<K> transitionController(@NonNull TransitionController<K> transitionController) {
+        this.transitionController = transitionController;
         return this;
     }
 
     /**
      * By default will detach all inactive screens
      *
-     * @param visibilityProvider {@link VisibilityProvider}
+     * @param retainVisibilityProvider {@link RetainVisibilityProvider}
      * @return self for chaining
-     * @see VisibilityProvider#builder(Class)
-     * @see VisibilityProvider#create(Visibility)
+     * @see RetainVisibilityProvider#builder(Class)
+     * @see RetainVisibilityProvider#create(RetainVisibility)
      */
     @NonNull
-    public ScreenManagerBuilder<K> visibilityProvider(@NonNull VisibilityProvider<K> visibilityProvider) {
-        this.visibilityProvider = visibilityProvider;
+    public ScreenManagerBuilder<K> retainVisibilityProvider(@NonNull RetainVisibilityProvider<K> retainVisibilityProvider) {
+        this.retainVisibilityProvider = retainVisibilityProvider;
         return this;
     }
 
@@ -166,13 +166,13 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
     /**
      * By default has not change lock
      *
-     * @param switchLock {@link SwitchLock}
+     * @param transitionLock {@link TransitionLock}
      * @return self for chaining
      * @see ScreenLayout
      */
     @NonNull
-    public ScreenManagerBuilder<K> switchLock(@NonNull SwitchLock switchLock) {
-        this.switchLock = switchLock;
+    public ScreenManagerBuilder<K> transitionLock(@NonNull TransitionLock transitionLock) {
+        this.transitionLock = transitionLock;
         return this;
     }
 
@@ -186,25 +186,25 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         checkNotNull(history, "History is required in order to build ScreenManager");
         checkNotNull(screenProvider, "ScreenProvider is required in order to build ScreenManager");
 
-        final SwitchController<K> controller;
-        if (switchController == null) {
-            controller = SwitchController.create(SwitchEngineNoOp.<K>create());
+        final TransitionController<K> controller;
+        if (transitionController == null) {
+            controller = TransitionController.create(ScreenTransition.<K>noOp());
         } else {
-            controller = switchController;
+            controller = transitionController;
         }
 
-        final VisibilityProvider<K> provider;
-        if (visibilityProvider == null) {
-            provider = VisibilityProvider.create(null);
+        final RetainVisibilityProvider<K> provider;
+        if (retainVisibilityProvider == null) {
+            provider = RetainVisibilityProvider.create(null);
         } else {
-            provider = visibilityProvider;
+            provider = retainVisibilityProvider;
         }
 
-        final SwitchLock lock;
-        if (switchLock == null) {
+        final TransitionLock lock;
+        if (transitionLock == null) {
             lock = CHANGE_LOCK_NO_OP;
         } else {
-            lock = switchLock;
+            lock = transitionLock;
         }
 
         return new ScreenManagerImpl<>(
@@ -232,12 +232,12 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
 
     private History<K> history;
     private ScreenProvider<K> screenProvider;
-    private SwitchController<K> switchController;
-    private VisibilityProvider<K> visibilityProvider;
+    private TransitionController<K> transitionController;
+    private RetainVisibilityProvider<K> retainVisibilityProvider;
     private LayoutInflater layoutInflater;
     private boolean detachLastView;
     private final Map<Class<? extends Plugin>, Plugin> plugins = new HashMap<>(3);
-    private SwitchLock switchLock;
+    private TransitionLock transitionLock;
 
     private boolean isBuilt;
 
@@ -256,7 +256,7 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
         }
     }
 
-    private static final SwitchLock CHANGE_LOCK_NO_OP = new SwitchLock() {
+    private static final TransitionLock CHANGE_LOCK_NO_OP = new TransitionLock() {
         @Override
         public void lock() {
 

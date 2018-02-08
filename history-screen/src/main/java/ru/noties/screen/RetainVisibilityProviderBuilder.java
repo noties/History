@@ -9,90 +9,90 @@ import java.util.Map;
 import ru.noties.history.Entry;
 
 @SuppressWarnings({"WeakerAccess", "SameParameterValue", "unused"})
-public class VisibilityProviderBuilder<K extends Enum<K>> {
+public class RetainVisibilityProviderBuilder<K extends Enum<K>> {
 
     @SuppressWarnings("unused")
     @NonNull
-    public static <K extends Enum<K>> VisibilityProviderBuilder<K> create(@NonNull Class<K> type) {
-        return new VisibilityProviderBuilder<>();
+    public static <K extends Enum<K>> RetainVisibilityProviderBuilder<K> create(@NonNull Class<K> type) {
+        return new RetainVisibilityProviderBuilder<>();
     }
 
     /**
-     * Tags exact pair of entries. Provided {@link Visibility} will only be used when `K toResolve`
+     * Tags exact pair of entries. Provided {@link RetainVisibility} will only be used when `K toResolve`
      * become inactive and `K active` becomes active
      *
      * @param toResolve  enum key of inactive entry
      * @param active     enum key of active entry
-     * @param visibility {@link Visibility} to apply to inactive entry
+     * @param retainVisibility {@link RetainVisibility} to apply to inactive entry
      * @return self for chaining
      */
     @NonNull
-    public VisibilityProviderBuilder<K> when(@NonNull K toResolve, @NonNull K active, @Nullable Visibility visibility) {
+    public RetainVisibilityProviderBuilder<K> when(@NonNull K toResolve, @NonNull K active, @Nullable RetainVisibility retainVisibility) {
         final Item<K> item = new Item<>(toResolve, active);
         if (map.containsKey(item)) {
             throw new IllegalStateException(String.format("Specified pair of keys (%s - %s) already have " +
-                    "visibility defined", toResolve, active));
+                    "defaultVisibility defined", toResolve, active));
         }
-        map.put(item, visibility);
+        map.put(item, retainVisibility);
         return this;
     }
 
     /**
      * Tags active Entry, so when it is going to appear, any item that becomes inactive will have returned here
-     * Visibility.
+     * RetainVisibility.
      *
      * @param active     enum key for active entry
-     * @param visibility {@link Visibility} to apply to inactive entry
+     * @param retainVisibility {@link RetainVisibility} to apply to inactive entry
      * @return self for chaining
      */
     @NonNull
-    public VisibilityProviderBuilder<K> whenTo(@NonNull K active, @Nullable Visibility visibility) {
+    public RetainVisibilityProviderBuilder<K> whenTo(@NonNull K active, @Nullable RetainVisibility retainVisibility) {
         final Item<K> item = new Item<>(null, active);
         if (map.containsKey(item)) {
             throw new IllegalStateException(String.format("Specified active key (%s) already has " +
-                    "visibility defined", active));
+                    "defaultVisibility defined", active));
         }
-        map.put(item, visibility);
+        map.put(item, retainVisibility);
         return this;
     }
 
     /**
      * Tags inactive entry, so no matter what active Entry will be inactive Entry will always have
-     * returned here Visibility
+     * returned here RetainVisibility
      *
      * @param toResolve  enum key for inactive entry
-     * @param visibility {@link Visibility} to apply to inactive entry
+     * @param retainVisibility {@link RetainVisibility} to apply to inactive entry
      * @return self for chaining
      */
     @NonNull
-    public VisibilityProviderBuilder<K> whenFrom(@NonNull K toResolve, @Nullable Visibility visibility) {
+    public RetainVisibilityProviderBuilder<K> whenFrom(@NonNull K toResolve, @Nullable RetainVisibility retainVisibility) {
         final Item<K> item = new Item<>(toResolve, null);
         if (map.containsKey(item)) {
             throw new IllegalStateException(String.format("Specified toResolve key (%s) already has " +
-                    "visibility defined", toResolve));
+                    "defaultVisibility defined", toResolve));
         }
-        map.put(item, visibility);
+        map.put(item, retainVisibility);
         return this;
     }
 
     /**
-     * Sets default Visibility to apply if {@link ScreenManager} encounters unknown rule for
-     * inactive entry visibility (provided to this builder). Defaults to `null`, so inactive entry
+     * Sets default RetainVisibility to apply if {@link ScreenManager} encounters unknown rule for
+     * inactive entry defaultVisibility (provided to this builder). Defaults to `null`, so inactive entry
      * will be detached
      *
-     * @param visibility {@link Visibility} to apply to inactive entry
+     * @param retainVisibility {@link RetainVisibility} to apply to inactive entry
      * @return self for chaining
      */
     @NonNull
-    public VisibilityProviderBuilder<K> defaultVisibility(@Nullable Visibility visibility) {
-        this.defaultVisibility = visibility;
+    public RetainVisibilityProviderBuilder<K> defaultVisibility(@Nullable RetainVisibility retainVisibility) {
+        this.defaultVisibility = retainVisibility;
         return this;
     }
 
     @NonNull
-    public VisibilityProvider<K> build() {
+    public RetainVisibilityProvider<K> build() {
         if (isBuilt) {
-            throw new IllegalStateException("This instance of VisibilityProviderBuilder has " +
+            throw new IllegalStateException("This instance of RetainVisibilityProviderBuilder has " +
                     "already been built");
         }
         isBuilt = true;
@@ -100,13 +100,13 @@ public class VisibilityProviderBuilder<K extends Enum<K>> {
     }
 
 
-    private final Map<Item<K>, Visibility> map = new HashMap<>(3);
+    private final Map<Item<K>, RetainVisibility> map = new HashMap<>(3);
 
-    private Visibility defaultVisibility;
+    private RetainVisibility defaultVisibility;
 
     private boolean isBuilt;
 
-    VisibilityProviderBuilder() {
+    RetainVisibilityProviderBuilder() {
     }
 
     private static class Item<K extends Enum<K>> {
@@ -145,35 +145,40 @@ public class VisibilityProviderBuilder<K extends Enum<K>> {
         }
     }
 
-    private static class Impl<K extends Enum<K>> extends VisibilityProvider<K> {
+    private static class Impl<K extends Enum<K>> extends RetainVisibilityProvider<K> {
 
-        private final Map<Item<K>, Visibility> map;
-        private final Visibility visibility;
+        private final Map<Item<K>, RetainVisibility> map;
+        private final RetainVisibility defaultVisibility;
         private final Item<K> item;
 
-        Impl(@NonNull Map<Item<K>, Visibility> map, @Nullable Visibility visibility) {
+        Impl(@NonNull Map<Item<K>, RetainVisibility> map, @Nullable RetainVisibility defaultVisibility) {
             this.map = map;
-            this.visibility = visibility;
+            this.defaultVisibility = defaultVisibility;
             this.item = new Item<>(null, null);
         }
 
         @Nullable
         @Override
-        public Visibility resolveInActiveVisibility(@NonNull Entry<K> toResolve, @NonNull Entry<K> active) {
+        public RetainVisibility resolveRetainVisibility(@NonNull Entry<K> toResolve, @NonNull Entry<K> active) {
 
-            if (map.containsKey(item.set(toResolve.key(), active.key()))) {
-                return map.get(item);
+            RetainVisibility visibility;
+
+            visibility = map.get(item.set(toResolve.key(), active.key()));
+            if (visibility != null) {
+                return visibility;
             }
 
-            if (map.containsKey(item.set(null, active.key()))) {
-                return map.get(item);
+            visibility = map.get(item.set(null, active.key()));
+            if (visibility != null) {
+                return visibility;
             }
 
-            if (map.containsKey(item.set(toResolve.key(), null))) {
-                return map.get(item);
+            visibility = map.get(item.set(toResolve.key(), null));
+            if (visibility != null) {
+                return visibility;
             }
 
-            return visibility;
+            return defaultVisibility;
         }
     }
 }

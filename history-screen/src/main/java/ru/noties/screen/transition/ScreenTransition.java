@@ -1,4 +1,4 @@
-package ru.noties.screen.transit;
+package ru.noties.screen.transition;
 
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -8,24 +8,31 @@ import android.view.ViewTreeObserver;
 
 import ru.noties.screen.Screen;
 
-@SuppressWarnings({"unused", "WeakerAccess"})
-public abstract class SwitchEngine<K extends Enum<K>> {
+@SuppressWarnings({"WeakerAccess", "unused"})
+public abstract class ScreenTransition<K extends Enum<K>> {
 
-    protected final ScreenSwitch<K> screenSwitch;
-
-    protected SwitchEngine(@NonNull ScreenSwitch<K> screenSwitch) {
-        this.screenSwitch = screenSwitch;
+    @NonNull
+    public static <K extends Enum<K>> ScreenTransition<K> noOp() {
+        //noinspection unchecked
+        return NO_OP;
     }
 
+    @NonNull
+    public static <K extends Enum<K>> ScreenTransition<K> noOp(@NonNull Class<K> type) {
+        //noinspection unchecked
+        return (ScreenTransition<K>) NO_OP;
+    }
+
+
     @Nullable
-    public SwitchEngineCallback apply(
+    public TransitionCallback apply(
             boolean reverse,
             @NonNull Screen<K, ? extends Parcelable> from,
             @NonNull Screen<K, ? extends Parcelable> to,
             @NonNull Runnable endAction
     ) {
 
-        final SwitchEngineCallback callback;
+        final TransitionCallback callback;
 
         if (isReady(from) && isReady(to)) {
             callback = applyNow(reverse, from, to, endAction);
@@ -36,40 +43,8 @@ public abstract class SwitchEngine<K extends Enum<K>> {
         return callback;
     }
 
-    // when restoring screen state this method will be called for visible screens
-    public void forceEndValues(
-            @NonNull final Screen<K, ? extends Parcelable> from,
-            @NonNull final Screen<K, ? extends Parcelable> to
-    ) {
-
-        if (isReady(from) && isReady(to)) {
-
-            screenSwitch.apply(1.F, from, to);
-
-        } else {
-
-            final ViewTreeObserver.OnPreDrawListener listener = new ViewTreeObserver.OnPreDrawListener() {
-                @Override
-                public boolean onPreDraw() {
-
-                    if (isReady(from) && isReady(to)) {
-                        removeOnPreDrawListener(from, this);
-                        removeOnPreDrawListener(to, this);
-                        screenSwitch.apply(1.F, from, to);
-                        return true;
-                    }
-
-                    return false;
-                }
-            };
-
-            addOnPreDrawListener(from, listener);
-            addOnPreDrawListener(to, listener);
-        }
-    }
-
     @Nullable
-    protected abstract SwitchEngineCallback applyNow(
+    protected abstract TransitionCallback applyNow(
             boolean reverse,
             @NonNull Screen<K, ? extends Parcelable> from,
             @NonNull Screen<K, ? extends Parcelable> to,
@@ -77,7 +52,7 @@ public abstract class SwitchEngine<K extends Enum<K>> {
     );
 
     @Nullable
-    protected SwitchEngineCallback applyWhenReady(
+    protected TransitionCallback applyWhenReady(
             final boolean reverse,
             @NonNull final Screen<K, ? extends Parcelable> from,
             @NonNull final Screen<K, ? extends Parcelable> to,
@@ -104,7 +79,7 @@ public abstract class SwitchEngine<K extends Enum<K>> {
         addOnPreDrawListener(from, listener);
         addOnPreDrawListener(to, listener);
 
-        return new SwitchEngineCallback() {
+        return new TransitionCallback() {
             @Override
             public void cancel() {
                 if (holder.callback != null) {
@@ -135,7 +110,20 @@ public abstract class SwitchEngine<K extends Enum<K>> {
         }
     }
 
+    private static final ScreenTransition NO_OP = new ScreenTransition() {
+        @Nullable
+        @Override
+        public final TransitionCallback apply(boolean reverse, @NonNull Screen from, @NonNull Screen to, @NonNull Runnable endAction) {
+            return TransitionCallback.noOp(endAction);
+        }
+
+        @Override
+        protected TransitionCallback applyNow(boolean reverse, @NonNull Screen from, @NonNull Screen to, @NonNull Runnable endAction) {
+            throw new RuntimeException();
+        }
+    };
+
     private static class Holder {
-        SwitchEngineCallback callback;
+        TransitionCallback callback;
     }
 }

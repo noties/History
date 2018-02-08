@@ -12,7 +12,6 @@ import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.history.Subscription;
 import ru.noties.screen.plugin.Plugin;
-import ru.noties.screen.transit.ScreenSwitch;
 
 @SuppressWarnings("unused")
 public abstract class ScreenManager<K extends Enum<K>> {
@@ -86,10 +85,10 @@ public abstract class ScreenManager<K extends Enum<K>> {
 
     /**
      * @param screen {@link Screen} for which to resolve visibility
-     * @return {@link Visibility} of supplied {@link Screen} or null if screen is not attached
+     * @return {@link RetainVisibility} of supplied {@link Screen} or null if screen is not attached
      */
     @Nullable
-    public abstract Visibility screenVisibility(@NonNull Screen<K, ? extends Parcelable> screen);
+    public abstract RetainVisibility screenVisibility(@NonNull Screen<K, ? extends Parcelable> screen);
 
 
     /**
@@ -134,16 +133,8 @@ public abstract class ScreenManager<K extends Enum<K>> {
     @NonNull
     public abstract <P extends Plugin> P plugin(@NonNull Class<P> plugin) throws IllegalStateException;
 
-    /**
-     * @return a boolean indicating if there is currently a {@link ScreenSwitch}
-     * running (transition between screens)
-     */
-    public abstract boolean isSwitchingScreens();
-
-    /**
-     * @param runnable that will be run when next screen change is finished
-     */
-    public abstract void onNextScreenSwitchFinished(@NonNull Runnable runnable);
+    // todo: javadoc
+    public abstract boolean isInTransition();
 
     /**
      * @param screen {@link Screen} to validate that it is related with this ScreenManager (not

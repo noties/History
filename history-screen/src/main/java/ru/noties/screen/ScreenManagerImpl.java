@@ -17,11 +17,10 @@ import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.history.Subscription;
-import ru.noties.listeners.Listeners;
 import ru.noties.screen.plugin.Plugin;
-import ru.noties.screen.transit.SwitchController;
-import ru.noties.screen.transit.SwitchEngineCallback;
-import ru.noties.screen.transit.SwitchLock;
+import ru.noties.screen.transition.TransitionLock;
+import ru.noties.screen.transition.TransitionCallback;
+import ru.noties.screen.transition.TransitionController;
 
 class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements History.Observer<K> {
 
@@ -37,11 +36,11 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
     private final Subscription historySubscription;
 
-    private final SwitchController<K> switchController;
+    private final TransitionController<K> transitionController;
 
     private final ScreenManagerEventDispatcher<K> eventDispatcher = new ScreenManagerEventDispatcher<>();
 
-    private final VisibilityProvider<K> visibilityProvider;
+    private final RetainVisibilityProvider<K> retainVisibilityProvider;
 
     @Nullable
     private final LayoutInflater layoutInflater;
@@ -50,14 +49,11 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
     private final Map<Class<? extends Plugin>, Plugin> plugins;
 
-    private final SwitchLock switchLock;
+    private final TransitionLock transitionLock;
 
-    private final Listeners<Runnable> screenSwitchListeners = Listeners.create(3);
+    private TransitionCallback pendingTransitionCallback;
 
-
-    private SwitchEngineCallback pendingSwitchCallback;
-
-    private boolean pendingSwitchCancelled;
+    private boolean pendingTransitionCancelled;
 
     private Activity activity;
 
@@ -78,24 +74,24 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
             @NonNull ViewGroup container,
             @NonNull History<K> history,
             @NonNull ScreenProvider<K> screenProvider,
-            @NonNull SwitchController<K> switchController,
-            @NonNull VisibilityProvider<K> visibilityProvider,
+            @NonNull TransitionController<K> transitionController,
+            @NonNull RetainVisibilityProvider<K> retainVisibilityProvider,
             @Nullable LayoutInflater inflater,
             boolean detachLastView,
             @NonNull Map<Class<? extends Plugin>, Plugin> plugins,
-            @NonNull SwitchLock switchLock
+            @NonNull TransitionLock transitionLock
     ) {
         this.activity = activity;
         this.container = container;
         this.history = history;
         this.screenProvider = screenProvider;
         this.historySubscription = history.observe(this);
-        this.switchController = switchController;
-        this.visibilityProvider = visibilityProvider;
+        this.transitionController = transitionController;
+        this.retainVisibilityProvider = retainVisibilityProvider;
         this.layoutInflater = inflater;
         this.detachLastView = detachLastView;
         this.plugins = plugins;
-        this.switchLock = switchLock;
+        this.transitionLock = transitionLock;
 
         listenForActivityEvents();
         listenForContainerEvents();
@@ -114,7 +110,7 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
             @Override
             void run(@NonNull ScreenManagerItem<K> previousItem) {
 
-                final Visibility visibility = resolveInActiveVisibility(previousItem.entry, current);
+                final RetainVisibility visibility = resolveInActiveVisibility(previousItem.entry, current);
 
                 if (visibility == null) {
 
@@ -171,18 +167,18 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
         attach(currentItem);
 
-        onSwitchStarted();
+        onTransitionStarted();
 
-        pendingSwitchCallback = switchController.forward(
+        pendingTransitionCallback = transitionController.forward(
                 screen(previousItem),
                 currentItem.screen,
                 new Runnable() {
                     @Override
                     public void run() {
 
-                        onSwitchFinished();
+                        onTransitionFinished();
 
-                        if (!pendingSwitchCancelled
+                        if (!pendingTransitionCancelled
                                 && activityResumed) {
                             // also: we must check if activity is in resumed state,
                             // so we do not make screen active when activity is not
@@ -210,19 +206,19 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         // now, obtain item to appear
         final ScreenManagerItem<K> toAppearItem = onPoppedToAppear(toAppear, items.size() - 2);
 
-        onSwitchStarted();
+        onTransitionStarted();
 
-        pendingSwitchCallback = switchController.back(
+        pendingTransitionCallback = transitionController.back(
                 poppedItem.screen,
                 screen(toAppearItem),
                 new Runnable() {
                     @Override
                     public void run() {
 
-                        onSwitchFinished();
+                        onTransitionFinished();
 
                         if (toAppearItem != null
-                                && !pendingSwitchCancelled
+                                && !pendingTransitionCancelled
                                 && activityResumed) {
                             active(toAppearItem);
                         }
@@ -243,11 +239,6 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         // eval all popped items -> walk the lifecycle, destroy
         // animate from first popped to toAppear
 
-        // so, let's extract items that we want to
-        final List<ScreenManagerItem<K>> poppedItems = toAppear == null
-                ? items
-                : items.subList(items.size() - popped.size(), items.size());
-
         final ScreenManagerItem<K> poppedTopItem = lastItem();
 
         // make it inactive
@@ -255,16 +246,16 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
         final ScreenManagerItem<K> toAppearItem = onPoppedToAppear(toAppear, items.size() - popped.size() - 1);
 
-        onSwitchStarted();
+        onTransitionStarted();
 
         final Runnable endAction = new Runnable() {
             @Override
             public void run() {
 
-                onSwitchFinished();
+                onTransitionFinished();
 
                 if (toAppearItem != null
-                        && !pendingSwitchCancelled
+                        && !pendingTransitionCancelled
                         && activityResumed) {
                     active(toAppearItem);
                 }
@@ -273,35 +264,22 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
             }
         };
 
-        final List<Screen<K, ? extends Parcelable>> visibleScreens = poppedItems.size() > 1
-                ? onPoppedVisibleScreens(poppedItems)
-                : null;
-
-        if (visibleScreens != null
-                && visibleScreens.size() > 1) {
-            pendingSwitchCallback = switchController.back(
-                    visibleScreens,
-                    screen(toAppearItem),
-                    endAction
-            );
-        } else {
-            pendingSwitchCallback = switchController.back(
-                    poppedTopItem.screen,
-                    screen(toAppearItem),
-                    endAction
-            );
-        }
+        pendingTransitionCallback = transitionController.back(
+                poppedTopItem.screen,
+                screen(toAppearItem),
+                endAction
+        );
     }
 
     private void cancelPendingTransition() {
 
-        if (pendingSwitchCallback != null) {
-            pendingSwitchCancelled = true;
-            pendingSwitchCallback.cancel();
+        if (pendingTransitionCallback != null) {
+            pendingTransitionCancelled = true;
+            pendingTransitionCallback.cancel();
         }
 
         // clear this flag no matter of pendingTransition state
-        pendingSwitchCancelled = false;
+        pendingTransitionCancelled = false;
     }
 
     @NonNull
@@ -317,8 +295,8 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     }
 
     @Nullable
-    private Visibility resolveInActiveVisibility(@NonNull Entry<K> toResolve, @NonNull Entry<K> active) {
-        return visibilityProvider.resolveInActiveVisibility(toResolve, active);
+    private RetainVisibility resolveInActiveVisibility(@NonNull Entry<K> toResolve, @NonNull Entry<K> active) {
+        return retainVisibilityProvider.resolveRetainVisibility(toResolve, active);
     }
 
     private int actualViewIndexForItem(@NonNull ScreenManagerItem<K> toFind) {
@@ -389,10 +367,10 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
     @Nullable
     @Override
-    public Visibility screenVisibility(@NonNull Screen<K, ? extends Parcelable> screen) {
+    public RetainVisibility screenVisibility(@NonNull Screen<K, ? extends Parcelable> screen) {
         final View view = screen.view();
         return view != null
-                ? Visibility.forValue(view.getVisibility())
+                ? RetainVisibility.forValue(view.getVisibility())
                 : null;
     }
 
@@ -451,21 +429,21 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
 
                         ScreenManagerItem<K> previous = items.get(0);
                         ScreenManagerItem<K> current;
-                        Visibility visibility;
+                        RetainVisibility retainVisibility;
 
                         for (int i = 1; i < size; i++) {
 
                             current = items.get(i);
 
-                            visibility = visibilityProvider.resolveInActiveVisibility(previous.entry, current.entry);
+                            retainVisibility = retainVisibilityProvider.resolveRetainVisibility(previous.entry, current.entry);
 
                             // if it's not NULL (not detached), then attach it and apply visibility
-                            if (visibility != null) {
+                            if (retainVisibility != null) {
 
                                 attach(previous);
 
                                 // apply actual visibility
-                                visibility.apply(previous.view);
+                                retainVisibility.apply(previous.view);
                             }
 
                             previous = current;
@@ -475,33 +453,6 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
                     // make last item attached and visible no matter what
                     final ScreenManagerItem<K> item = items.get(size - 1);
                     attach(item);
-
-                    // it's a bit crazy actually:
-                    //      if we meet visible screen, but for some reason previous one
-                    //      is not visible(even invisible or gone), we won't be able to
-                    //      restore the state properly
-                    // let's just assume that we apply that for LAST visible screens
-                    // not allowing gaps like (VISIBLE, GONE, VISIBLE, VISIBLE) ->
-                    //      so only last VISIBLE-VISIBLE pair will be forced end values
-
-                    if (size > 1) {
-
-                        // does the order of how we apply state matters? can we go just backwards here?
-
-                        Screen<K, ? extends Parcelable> previous = item.screen;
-                        Screen<K, ? extends Parcelable> current;
-
-                        for (int i = size - 2; i >= 0; i--) {
-                            current = items.get(i).screen;
-                            if (Visibility.VISIBLE == screenVisibility(current)) {
-                                switchController.switchEngine(current, previous)
-                                        .forceEndValues(current, previous);
-                                previous = current;
-                            } else {
-                                break;
-                            }
-                        }
-                    }
 
                     // most likely no, but still
                     // else, onActivity resume will make it automatically active
@@ -527,13 +478,8 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     }
 
     @Override
-    public boolean isSwitchingScreens() {
-        return pendingSwitchCallback != null;
-    }
-
-    @Override
-    public void onNextScreenSwitchFinished(@NonNull Runnable runnable) {
-        screenSwitchListeners.add(runnable);
+    public boolean isInTransition() {
+        return pendingTransitionCallback != null;
     }
 
     @Override
@@ -555,22 +501,15 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         return result;
     }
 
-    private void onSwitchStarted() {
-        switchLock.lock();
+    private void onTransitionStarted() {
+        transitionLock.lock();
     }
 
-    private void onSwitchFinished() {
+    private void onTransitionFinished() {
 
-        pendingSwitchCallback = null;
+        pendingTransitionCallback = null;
 
-        switchLock.unlock();
-
-        if (screenSwitchListeners.size() > 0) {
-            for (Runnable runnable : screenSwitchListeners.begin()) {
-                runnable.run();
-            }
-            screenSwitchListeners.clear();
-        }
+        transitionLock.unlock();
     }
 
     private static abstract class ReplaceEndAction<K extends Enum<K>> {
@@ -778,20 +717,20 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         return item;
     }
 
-    @NonNull
-    private List<Screen<K, ? extends Parcelable>> onPoppedVisibleScreens(@NonNull List<ScreenManagerItem<K>> poppedItems) {
-
-        final List<Screen<K, ? extends Parcelable>> screens = new ArrayList<>(poppedItems.size());
-
-        for (ScreenManagerItem<K> item : poppedItems) {
-            if (item.view != null
-                    && Visibility.VISIBLE == screenVisibility(item.screen)) {
-                screens.add(item.screen);
-            }
-        }
-
-        return screens;
-    }
+//    @NonNull
+//    private List<Screen<K, ? extends Parcelable>> onPoppedVisibleScreens(@NonNull List<ScreenManagerItem<K>> poppedItems) {
+//
+//        final List<Screen<K, ? extends Parcelable>> screens = new ArrayList<>(poppedItems.size());
+//
+//        for (ScreenManagerItem<K> item : poppedItems) {
+//            if (item.view != null
+//                    && RetainVisibility.VISIBLE == screenVisibility(item.screen)) {
+//                screens.add(item.screen);
+//            }
+//        }
+//
+//        return screens;
+//    }
 
     private void destroyPopped(@Nullable ScreenManagerItem<K> toAppear) {
 

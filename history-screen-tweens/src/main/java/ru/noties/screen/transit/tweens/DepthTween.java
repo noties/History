@@ -3,7 +3,7 @@ package ru.noties.screen.transit.tweens;
 import android.support.annotation.NonNull;
 import android.view.View;
 
-import ru.noties.screen.transit.Edge;
+import ru.noties.screen.transition.Edge;
 import ru.noties.tumbleweed.BaseTweenDef;
 import ru.noties.tumbleweed.Timeline;
 import ru.noties.tumbleweed.Tween;

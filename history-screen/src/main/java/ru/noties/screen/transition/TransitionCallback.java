@@ -1,16 +1,16 @@
-package ru.noties.screen.transit;
+package ru.noties.screen.transition;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-public abstract class SwitchEngineCallback {
+public abstract class TransitionCallback {
 
+    @SuppressWarnings("WeakerAccess")
     @Nullable
-    public static SwitchEngineCallback noOp(@NonNull Runnable endAction) {
+    public static TransitionCallback noOp(@NonNull Runnable endAction) {
         endAction.run();
         return null;
     }
 
     public abstract void cancel();
-
 }

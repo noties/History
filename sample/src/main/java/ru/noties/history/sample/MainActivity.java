@@ -11,13 +11,16 @@ import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.screen.BackPressedUtils;
+import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenLayout;
 import ru.noties.screen.ScreenManager;
 import ru.noties.screen.ScreenProvider;
 import ru.noties.screen.plugin.ActivityResultPlugin;
 import ru.noties.screen.plugin.OnBackPressedPlugin;
 import ru.noties.screen.plugin.PermissionResultPlugin;
-import ru.noties.screen.transit.Edge;
+import ru.noties.screen.transition.Edge;
+import ru.noties.screen.transition.SlideTransition;
+import ru.noties.screen.transition.TransitionController;
 
 public class MainActivity extends Activity {
 
@@ -64,8 +67,8 @@ public class MainActivity extends Activity {
         historyBar.setHistory(history);
 
         screenManager = ScreenManager.builder(history, screenProvider)
-                .switchLock(screenLayout)
-                .switchController(new AllSwitchController(Edge.RIGHT))
+                .transitionLock(screenLayout)
+                .transitionController(TransitionController.create(SlideTransition.create(Edge.BOTTOM, 250L, ScreenKey.class)))
                 .addPlugin(new ColorsPlugin(colors))
                 .addPlugins(onBackPressedPlugin, activityResultPlugin, permissionResultPlugin)
                 .build(this, screenLayout);

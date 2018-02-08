@@ -5,15 +5,15 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-import ru.noties.screen.transit.SwitchLock;
+import ru.noties.screen.transition.TransitionLock;
 
 /**
  * Simple implementation of FrameLayout that disables all touch events whilst change between
  * multiple screens occur. Should be used as root container for {@link ScreenManager}
  *
- * @see SwitchLock
+ * @see TransitionLock
  */
-public class ScreenLayout extends FrameLayout implements SwitchLock {
+public class ScreenLayout extends FrameLayout implements TransitionLock {
 
     private boolean locked;
 
