@@ -22,6 +22,7 @@ android {
 dependencies {
     implementation project(':history')
     implementation project(':history-screen')
+    implementation project(':history-screen-transitions')
     implementation 'ru.noties:debug:3.0.0@jar'
     implementation RECYCLER_VIEW
 }

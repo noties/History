@@ -1,119 +1,140 @@
-package ru.noties.screen.transit.tweens;
+package ru.noties.screen.transition;
 
 import android.os.Build;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
-import ru.noties.screen.Screen;
-import ru.noties.screen.transition.Edge;
+import ru.noties.tumbleweed.BaseTween;
 import ru.noties.tumbleweed.BaseTweenDef;
 import ru.noties.tumbleweed.Timeline;
 import ru.noties.tumbleweed.Tween;
+import ru.noties.tumbleweed.TweenCallback;
+import ru.noties.tumbleweed.TweenManager;
 import ru.noties.tumbleweed.android.types.Rotation;
 import ru.noties.tumbleweed.android.types.Translation;
 
-@SuppressWarnings({"WeakerAccess", "unused"})
-public class CubeOutTweenEngine<K extends Enum<K>> extends TweenSwitchEngine<K> {
-
-    protected static final boolean IS_M = Build.VERSION.SDK_INT == Build.VERSION_CODES.M;
+@SuppressWarnings({"unused", "WeakerAccess"})
+public class CubeOutTransition extends TweenViewTransition {
 
     @NonNull
-    public static <K extends Enum<K>> CubeOutTweenEngine<K> create(@NonNull Edge fromEdge, long duration) {
+    public static <K extends Enum<K>> ScreenTransition<K> create(@NonNull Edge edge, long duration) {
 
-        final ViewTweenProvider provider;
+        final CubeOutTransition transition;
 
-        final float d = duration / 1000.F;
+        final float seconds = toSeconds(duration);
 
-        switch (fromEdge) {
+        switch (edge) {
+
+            case LEFT:
+                transition = new CubeOutTransition(seconds, new Left());
+                break;
 
             case TOP:
-                provider = new Top(d);
+                transition = new CubeOutTransition(seconds, new Top());
                 break;
 
-            case RIGHT:
-                provider = new Right(d);
-                break;
+//            case RIGHT:
+//                break;
 
             case BOTTOM:
-                provider = new Bottom(d);
+                transition = new CubeOutTransition(seconds, new Bottom());
                 break;
 
             default:
-                provider = new Left(d);
+                transition = new CubeOutTransition(seconds, new Right());
+                break;
         }
 
-        return new CubeOutTweenEngine<>(provider);
-    }
-
-    private final ViewTweenProvider provider;
-
-    protected CubeOutTweenEngine(@NonNull ViewTweenProvider provider) {
-        this.provider = provider;
+        //noinspection unchecked
+        return transition;
     }
 
     @NonNull
-    @Override
-    protected BaseTweenDef createTween(boolean reverse, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to) {
-        return provider.provide(reverse, from.view(), to.view());
+    public static <K extends Enum<K>> ScreenTransition<K> create(@NonNull Edge edge, long duration, @NonNull Class<K> type) {
+        return create(edge, duration);
     }
 
+    private static final boolean IS_M = Build.VERSION.SDK_INT == Build.VERSION_CODES.M;
+
+    private final float duration;
+    private final Provider provider;
+
+    private CubeOutTransition(float duration, @NonNull Provider provider) {
+        this.duration = duration;
+        this.provider = provider;
+    }
+
+    @Nullable
     @Override
-    protected void before(boolean reverse, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to) {
+    protected TransitionCallback applyNow(boolean reverse, @NonNull final View from, @NonNull final View to, @NonNull final Runnable endAction) {
+
+        final View container = parent(from);
+        final TweenManager manager = tweenManager(container);
+        kill(manager, from, to);
+
+        before(container);
+
+        provider.provide(reverse, from, to, duration)
+                .addCallback(TweenCallback.END, new TweenCallback() {
+                    @Override
+                    public void onEvent(int type, @NonNull BaseTween source) {
+                        resetPivot(from, to);
+                        after(container);
+                        endAction.run();
+                    }
+                })
+                .start(manager);
+
+        return new TransitionCallback() {
+            @Override
+            public void cancel() {
+                kill(manager, from, to);
+                resetPivot(from, to);
+                after(container);
+                endAction.run();
+            }
+        };
+    }
+
+    private void before(@NonNull View container) {
         if (IS_M) {
-            final View view = reverse ? from.manager().container() : to.manager().container();
-            final int currentType = view.getLayerType();
+            final int currentType = container.getLayerType();
             if (View.LAYER_TYPE_SOFTWARE != currentType) {
-                view.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                view.setTag(R.id.m_layer_type, currentType);
+                container.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+                container.setTag(R.id.m_layer_type, currentType);
             }
         }
     }
 
-    @Override
-    protected void after(boolean reverse, @NonNull Screen<K, ? extends Parcelable> from, @NonNull Screen<K, ? extends Parcelable> to) {
+    private void after(@NonNull View container) {
         if (IS_M) {
-            final View view = reverse ? from.manager().container() : to.manager().container();
-            final Integer previousType = (Integer) view.getTag(R.id.m_layer_type);
+            final Integer previousType = (Integer) container.getTag(R.id.m_layer_type);
             if (previousType != null) {
-                view.setLayerType(previousType, null);
+                container.setLayerType(previousType, null);
             }
         }
-        resetPivot(from.view(), to.view());
     }
 
-    private void resetPivot(@Nullable View from, @Nullable View to) {
-        // end action could detach a view, so no need to reset its pivot
-        if (from != null) {
-            from.setPivotX(from.getWidth() / 2);
-            from.setPivotY(from.getHeight() / 2);
-        }
+    private void resetPivot(@NonNull View from, @NonNull View to) {
 
-        if (to != null) {
-            to.setPivotX(to.getWidth() / 2);
-            to.setPivotY(to.getHeight() / 2);
-        }
+        from.setPivotX(from.getWidth() / 2);
+        from.setPivotY(from.getHeight() / 2);
+
+        to.setPivotX(to.getWidth() / 2);
+        to.setPivotY(to.getHeight() / 2);
     }
 
-    private abstract static class Base implements ViewTweenProvider {
-
-        final float duration;
-
-        protected Base(float duration) {
-            this.duration = duration;
-        }
+    private interface Provider {
+        @NonNull
+        BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to, float duration);
     }
 
-    private static class Left extends Base {
-
-        protected Left(float duration) {
-            super(duration);
-        }
+    private static class Left implements Provider {
 
         @NonNull
         @Override
-        public BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to) {
+        public BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to, float duration) {
 
             from.setRotationY(reverse ? 90 : 0);
             to.setRotationY(reverse ? 0 : -90);
@@ -138,15 +159,11 @@ public class CubeOutTweenEngine<K extends Enum<K>> extends TweenSwitchEngine<K> 
         }
     }
 
-    private static class Right extends Base {
-
-        protected Right(float duration) {
-            super(duration);
-        }
+    private static class Right implements Provider {
 
         @NonNull
         @Override
-        public BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to) {
+        public BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to, float duration) {
 
             from.setRotationY(reverse ? -90 : 0);
             to.setRotationY(reverse ? 0 : 90);
@@ -171,15 +188,11 @@ public class CubeOutTweenEngine<K extends Enum<K>> extends TweenSwitchEngine<K> 
         }
     }
 
-    private static class Top extends Base {
-
-        protected Top(float duration) {
-            super(duration);
-        }
+    private static class Top implements Provider {
 
         @NonNull
         @Override
-        public BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to) {
+        public BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to, float duration) {
 
             from.setRotationX(reverse ? -90 : 0);
             to.setRotationX(reverse ? 0 : 90);
@@ -204,15 +217,11 @@ public class CubeOutTweenEngine<K extends Enum<K>> extends TweenSwitchEngine<K> 
         }
     }
 
-    private static class Bottom extends Base {
-
-        protected Bottom(float duration) {
-            super(duration);
-        }
+    private static class Bottom implements Provider {
 
         @NonNull
         @Override
-        public BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to) {
+        public BaseTweenDef provide(boolean reverse, @NonNull View from, @NonNull View to, float duration) {
 
             from.setRotationX(reverse ? 90 : 0);
             to.setRotationX(reverse ? 0 : -90);

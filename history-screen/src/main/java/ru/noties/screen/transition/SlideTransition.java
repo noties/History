@@ -13,26 +13,30 @@ public abstract class SlideTransition extends ViewTransition {
 
         switch (edge) {
 
+            case LEFT:
+                transition = new Horizontal(duration, new Left());
+                break;
+
             case TOP:
                 transition = new Vertical(duration, new Top());
                 break;
 
-            case RIGHT:
-                transition = new Horizontal(duration, new Right());
-                break;
+//            case RIGHT:
+//                break;
 
             case BOTTOM:
                 transition = new Vertical(duration, new Bottom());
                 break;
 
             default:
-                transition = new Horizontal(duration, new Left());
+                transition = new Horizontal(duration, new Right());
         }
 
         //noinspection unchecked
         return transition;
     }
 
+    @SuppressWarnings("unused")
     @NonNull
     public static <K extends Enum<K>> ScreenTransition<K> create(@NonNull Edge edge, long duration, @NonNull Class<K> type) {
         return create(edge, duration);
@@ -41,7 +45,7 @@ public abstract class SlideTransition extends ViewTransition {
     final long duration;
     final Provider provider;
 
-    protected SlideTransition(long duration, @NonNull Provider provider) {
+    SlideTransition(long duration, @NonNull Provider provider) {
         this.duration = duration;
         this.provider = provider;
     }
@@ -55,13 +59,16 @@ public abstract class SlideTransition extends ViewTransition {
 
     private static class Horizontal extends SlideTransition {
 
-        protected Horizontal(long duration, @NonNull Provider provider) {
+        Horizontal(long duration, @NonNull Provider provider) {
             super(duration, provider);
         }
 
         @Nullable
         @Override
         protected TransitionCallback applyNow(boolean reverse, @NonNull final View from, @NonNull final View to, @NonNull final Runnable endAction) {
+
+            from.clearAnimation();
+            to.clearAnimation();
 
             final float fromValue = provider.fromValue(from);
             final float toValue = provider.toValue(to);
@@ -95,13 +102,16 @@ public abstract class SlideTransition extends ViewTransition {
 
     private static class Vertical extends SlideTransition {
 
-        protected Vertical(long duration, @NonNull Provider provider) {
+        Vertical(long duration, @NonNull Provider provider) {
             super(duration, provider);
         }
 
         @Nullable
         @Override
         protected TransitionCallback applyNow(boolean reverse, @NonNull final View from, @NonNull final View to, @NonNull final Runnable endAction) {
+
+            from.clearAnimation();
+            to.clearAnimation();
 
             final float fromValue = provider.fromValue(from);
             final float toValue = provider.toValue(to);

@@ -29,6 +29,9 @@ public class AlphaTransition extends ViewTransition {
     @Override
     protected TransitionCallback applyNow(boolean reverse, @NonNull final View from, @NonNull final View to, @NonNull final Runnable endAction) {
 
+        from.clearAnimation();
+        to.clearAnimation();
+
         from.setAlpha(reverse ? .0F : 1.F);
         to.setAlpha(reverse ? 1.F : .0F);
 
