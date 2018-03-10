@@ -34,9 +34,6 @@ public class ZoomOutTransition extends TweenViewTransition {
                 transition = new ZoomOutTransition(seconds, new Top());
                 break;
 
-//            case RIGHT:
-//                break;
-
             case BOTTOM:
                 transition = new ZoomOutTransition(seconds, new Bottom());
                 break;

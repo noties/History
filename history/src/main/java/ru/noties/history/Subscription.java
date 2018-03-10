@@ -22,7 +22,7 @@ public interface Subscription {
      * @param visitor {@link Visitor} to visit this instance
      * @return self for chaining
      */
-    @SuppressWarnings("UnusedReturnValue")
+    @SuppressWarnings({"UnusedReturnValue", "unused"})
     @NonNull
     Subscription accept(@NonNull Visitor visitor);
 }

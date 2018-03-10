@@ -32,9 +32,6 @@ public abstract class AccordionTransition extends TweenViewTransition {
                 transition = new Vertical(seconds, new Top());
                 break;
 
-//            case RIGHT:
-//                break;
-
             case BOTTOM:
                 transition = new Vertical(seconds, new Bottom());
                 break;

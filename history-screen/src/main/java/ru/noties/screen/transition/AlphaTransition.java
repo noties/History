@@ -4,15 +4,30 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+/**
+ * Simple alpha transition (cross-fade)
+ *
+ * @see #create(long)
+ * @see #create(long, Class)
+ */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class AlphaTransition extends ViewTransition {
 
+    /**
+     * @param duration in milliseconds
+     * @return {@link ScreenTransition}
+     */
     @NonNull
     private static <K extends Enum<K>> ScreenTransition<K> create(long duration) {
         //noinspection unchecked
         return new AlphaTransition(duration);
     }
 
+    /**
+     * @param duration in milliseconds
+     * @param type     class of enum key for type information
+     * @return {@link ScreenTransition}
+     */
     @NonNull
     private static <K extends Enum<K>> ScreenTransition<K> create(long duration, @NonNull Class<K> type) {
         //noinspection unchecked

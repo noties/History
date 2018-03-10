@@ -34,9 +34,6 @@ public class DepthTransition extends TweenViewTransition {
                 transition = new DepthTransition(seconds, new Top());
                 break;
 
-//            case RIGHT:
-//                break;
-
             case BOTTOM:
                 transition = new DepthTransition(seconds, new Bottom());
                 break;

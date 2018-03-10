@@ -11,30 +11,14 @@ import ru.noties.history.Entry;
 import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.screen.BackPressedUtils;
-import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenLayout;
 import ru.noties.screen.ScreenManager;
 import ru.noties.screen.ScreenProvider;
 import ru.noties.screen.plugin.ActivityResultPlugin;
 import ru.noties.screen.plugin.OnBackPressedPlugin;
 import ru.noties.screen.plugin.PermissionResultPlugin;
-import ru.noties.screen.transition.AccordionTransition;
-import ru.noties.screen.transition.CubeOutTransition;
-import ru.noties.screen.transition.DepthTransition;
-import ru.noties.screen.transition.Edge;
-import ru.noties.screen.transition.ParallaxTransition;
-import ru.noties.screen.transition.SlideTransition;
-import ru.noties.screen.transition.TransitionController;
-import ru.noties.screen.transition.ZoomOutTransition;
 
 public class MainActivity extends Activity {
-
-    // todo: theme swapping (by providing layout inflater or context) save/clear/restore
-    // todo| viewPager... (mock add - no notification?)
-    //      it's actually a good question: manual transition (via touch event for example)
-    //      todo: first page of view pager is an empty page (transparent)
-    // todo: visibility offset (dynamic) + maybe modify it in runtime (+ detach?)
-    // todo: maybe manual transition? can we do that?
 
     private static final String KEY_STATE = "key.STATE";
 
@@ -71,12 +55,9 @@ public class MainActivity extends Activity {
 
         historyBar.setHistory(history);
 
-        final TransitionController<ScreenKey> transitionController
-                = TransitionController.create(ZoomOutTransition.<ScreenKey>create(Edge.BOTTOM, 250L));
-
         screenManager = ScreenManager.builder(history, screenProvider)
                 .transitionLock(screenLayout)
-                .transitionController(transitionController)
+                .transitionController(AllTransitionsController.create())
                 .addPlugin(new ColorsPlugin(colors))
                 .addPlugins(onBackPressedPlugin, activityResultPlugin, permissionResultPlugin)
                 .build(this, screenLayout);

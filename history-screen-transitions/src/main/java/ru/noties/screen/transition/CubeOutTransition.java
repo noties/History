@@ -34,9 +34,6 @@ public class CubeOutTransition extends TweenViewTransition {
                 transition = new CubeOutTransition(seconds, new Top());
                 break;
 
-//            case RIGHT:
-//                break;
-
             case BOTTOM:
                 transition = new CubeOutTransition(seconds, new Bottom());
                 break;

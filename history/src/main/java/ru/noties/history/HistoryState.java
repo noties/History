@@ -5,7 +5,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -78,7 +77,6 @@ public final class HistoryState implements Parcelable {
                     // enum type (just use the first one)
                     writeType(dest, entry.key());
                 }
-                Log.e("hello", "" + entry.id());
                 dest.writeLong(entry.id());
                 dest.writeInt(entry.key().ordinal());
                 writeType(dest, entry.state());

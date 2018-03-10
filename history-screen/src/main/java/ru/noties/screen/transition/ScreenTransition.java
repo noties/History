@@ -8,6 +8,15 @@ import android.view.ViewTreeObserver;
 
 import ru.noties.screen.Screen;
 
+/**
+ * Core class to apply transitions between different {@link Screen}s. Takes care to start
+ * transition only after both views are ready to be shown (also measured), so view dimensions
+ * are available right away.
+ *
+ * @see ViewTransition
+ * @see AlphaTransition
+ * @see SlideTransition
+ */
 @SuppressWarnings({"WeakerAccess", "unused"})
 public abstract class ScreenTransition<K extends Enum<K>> {
 

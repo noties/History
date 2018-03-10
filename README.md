@@ -1,12 +1,8 @@
-![logo](./art/logo.png)
+<div style="text-align: center"><img src="./art/logo.png" height="156px"/></div>
 
 # History
 
 Utility to maintain a linear history of arbitrary entries (_backstack_ if you wish). Includes ready to be used `ScreenManager` which maintains screens (view-based components) by observing the `History` changes.
-
----
-
-<img src="./art/gif_generic.gif" width="33%" />
 
 ---
 

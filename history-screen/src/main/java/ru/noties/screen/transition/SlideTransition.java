@@ -21,9 +21,6 @@ public abstract class SlideTransition extends ViewTransition {
                 transition = new Vertical(duration, new Top());
                 break;
 
-//            case RIGHT:
-//                break;
-
             case BOTTOM:
                 transition = new Vertical(duration, new Bottom());
                 break;

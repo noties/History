@@ -32,9 +32,6 @@ public class ParallaxTransition extends TweenViewTransition {
                 transition = new ParallaxTransition(seconds, new Top());
                 break;
 
-//            case RIGHT:
-//                break;
-
             case BOTTOM:
                 transition = new ParallaxTransition(seconds, new Bottom());
                 break;

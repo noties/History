@@ -717,21 +717,6 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         return item;
     }
 
-//    @NonNull
-//    private List<Screen<K, ? extends Parcelable>> onPoppedVisibleScreens(@NonNull List<ScreenManagerItem<K>> poppedItems) {
-//
-//        final List<Screen<K, ? extends Parcelable>> screens = new ArrayList<>(poppedItems.size());
-//
-//        for (ScreenManagerItem<K> item : poppedItems) {
-//            if (item.view != null
-//                    && RetainVisibility.VISIBLE == screenVisibility(item.screen)) {
-//                screens.add(item.screen);
-//            }
-//        }
-//
-//        return screens;
-//    }
-
     private void destroyPopped(@Nullable ScreenManagerItem<K> toAppear) {
 
         if (toAppear == null && !detachLastView) {
