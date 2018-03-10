@@ -77,7 +77,7 @@ public class RetainVisibilityProviderBuilder<K extends Enum<K>> {
 
     /**
      * Sets default RetainVisibility to apply if {@link ScreenManager} encounters unknown rule for
-     * inactive entry defaultVisibility (provided to this builder). Defaults to `null`, so inactive entry
+     * inactive entry defaultVisibility (provided to this stateBuilder). Defaults to `null`, so inactive entry
      * will be detached
      *
      * @param retainVisibility {@link RetainVisibility} to apply to inactive entry

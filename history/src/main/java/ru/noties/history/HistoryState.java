@@ -28,6 +28,10 @@ public final class HistoryState implements Parcelable {
                 : null;
     }
 
+    public <K extends Enum<K>> boolean restore(@NonNull History<K> history) {
+        return history.restore(this);
+    }
+
     private final List<Entry> entries;
 
     HistoryState(@NonNull List<Entry> entries) {

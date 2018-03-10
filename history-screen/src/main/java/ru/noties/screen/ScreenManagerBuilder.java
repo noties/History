@@ -117,7 +117,7 @@ public class ScreenManagerBuilder<K extends Enum<K>> {
     public ScreenManagerBuilder<K> addPlugin(@NonNull Plugin plugin) {
 
         // we add check here as this call modifies internal Map, so built instance of ScreenManager
-        // can be affected by operating on this builder instance
+        // can be affected by operating on this stateBuilder instance
 
         checkState();
 
