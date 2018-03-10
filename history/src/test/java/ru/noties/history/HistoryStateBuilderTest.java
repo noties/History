@@ -15,7 +15,7 @@ import static org.junit.Assert.assertFalse;
 @Config(manifest = Config.NONE)
 public class HistoryStateBuilderTest {
 
-    enum Key {
+    private enum Key {
         FIRST
     }
 
