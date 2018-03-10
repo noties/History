@@ -9,6 +9,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class HistoryStateBuilder<K extends Enum<K>> {
 
+    @NonNull
     public static <K extends Enum<K>> HistoryStateBuilder<K> create(@NonNull Class<K> type) {
         return new HistoryStateBuilder<>();
     }
