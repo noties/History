@@ -30,4 +30,9 @@ class LoggingObserver<K extends Enum<K>> implements History.Observer<K> {
     public void onEntriesPopped(@NonNull List<Entry<K>> popped, @Nullable Entry<K> toAppear) {
         Debug.i("popped: %s, toAppear: %s", popped, toAppear);
     }
+
+    @Override
+    public void onEntriesDropped(@NonNull List<Entry<K>> dropped) {
+        Debug.i("dropped: %s", dropped);
+    }
 }

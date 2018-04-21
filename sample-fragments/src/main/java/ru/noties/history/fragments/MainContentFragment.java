@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.Locale;
 
 import ru.noties.history.Entry;
+import ru.noties.history.History;
 
 public class MainContentFragment extends HistoryFragment<ScreenKey> {
 
@@ -43,6 +44,18 @@ public class MainContentFragment extends HistoryFragment<ScreenKey> {
             @Override
             public void onClick(View v) {
                 history().push(Entry.create(ScreenKey.MAIN_CONTENT, new MainContentState(state.index() + 1)));
+            }
+        });
+
+        text.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                final History<ScreenKey> history = history();
+                if (history.length() > 1) {
+                    history.drop(history.entryAt(history.length() - 2));
+                    return true;
+                }
+                return false;
             }
         });
     }

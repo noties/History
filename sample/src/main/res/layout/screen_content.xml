@@ -56,6 +56,15 @@
                 android:text="@string/operation_pop"
                 android:textAllCaps="true" />
 
+            <Button
+                android:id="@+id/content_button_drop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dip"
+                android:minWidth="196dip"
+                android:text="@string/operation_drop"
+                android:textAllCaps="true" />
+
         </LinearLayout>
 
     </LinearLayout>

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import ru.noties.history.Entry;
+import ru.noties.history.History;
 import ru.noties.screen.Screen;
 import ru.noties.screen.ScreenManager;
 
@@ -48,6 +49,14 @@ public class ContentScreen extends Screen<ScreenKey, ContentState> {
 
         view.findViewById(R.id.content_button_pop)
                 .setOnClickListener(v -> activity().onBackPressed());
+
+        view.findViewById(R.id.content_button_drop)
+                .setOnClickListener(v -> {
+                    final History<ScreenKey> history = history();
+                    if (history.length() > 1) {
+                        history.drop(history.entryAt(history.length() - 2));
+                    }
+                });
     }
 
     @NonNull

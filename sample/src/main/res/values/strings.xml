@@ -7,5 +7,6 @@
     <string name="operation_push">Push</string>
     <string name="operation_replace">Replace</string>
     <string name="operation_pop">Pop</string>
+    <string name="operation_drop">Drop</string>
 
 </resources>

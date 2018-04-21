@@ -18,9 +18,9 @@ import ru.noties.history.History;
 import ru.noties.history.HistoryState;
 import ru.noties.history.Subscription;
 import ru.noties.screen.plugin.Plugin;
-import ru.noties.screen.transition.TransitionLock;
 import ru.noties.screen.transition.TransitionCallback;
 import ru.noties.screen.transition.TransitionController;
+import ru.noties.screen.transition.TransitionLock;
 
 class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements History.Observer<K> {
 
@@ -271,6 +271,45 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
         );
     }
 
+    @Override
+    public void onEntriesDropped(@NonNull List<Entry<K>> dropped) {
+
+        // only inactive entries can be dropped (not visible)
+        // we can additionally validate that dropped item view is visible (meaning -> it's in transition)
+        // and maybe we can postpone actual removal...
+
+        ScreenManagerItem<K> item;
+
+        for (Entry<K> entry : dropped) {
+            item = findItem(entry);
+            if (item != null) {
+                dropItem(item);
+            }
+        }
+    }
+
+    private void dropItem(@NonNull ScreenManagerItem<K> item) {
+
+        // we will cancel transition callback if view is currently visible (as it might be only when
+        // in transition)
+        if (item.view != null
+                && View.VISIBLE == item.view.getVisibility()) {
+
+            if (pendingTransitionCallback != null) {
+                pendingTransitionCallback.cancel();
+                pendingTransitionCallback = null;
+            }
+        }
+
+        // walk the lifecycle as needed
+        // (must not be active)
+        final Screen<K, ? extends Parcelable> screen = item.screen;
+        if (screen.isAttached()) {
+            detach(item, false);
+        }
+        destroy(item);
+    }
+
     private void cancelPendingTransition() {
 
         if (pendingTransitionCallback != null) {
@@ -285,6 +324,21 @@ class ScreenManagerImpl<K extends Enum<K>> extends ScreenManager<K> implements H
     @NonNull
     private ScreenManagerItem<K> lastItem() {
         return items.get(items.size() - 1);
+    }
+
+    @Nullable
+    private ScreenManagerItem<K> findItem(@NonNull Entry<K> entry) {
+
+        ScreenManagerItem<K> out = null;
+
+        for (ScreenManagerItem<K> item : items) {
+            if (entry == item.entry) {
+                out = item;
+                break;
+            }
+        }
+
+        return out;
     }
 
     @Nullable

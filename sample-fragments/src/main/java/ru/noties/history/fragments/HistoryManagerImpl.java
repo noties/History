@@ -157,6 +157,26 @@ class HistoryManagerImpl<K extends Enum<K>> extends HistoryManager<K> implements
                 .commitNow();
     }
 
+    @Override
+    public void onEntriesDropped(@NonNull List<Entry<K>> dropped) {
+
+        final FragmentTransaction transaction = fragmentManager.beginTransaction();
+        try {
+
+            Fragment fragment;
+
+            for (Entry<K> entry: dropped) {
+                fragment = fragmentManager.findFragmentByTag(tag(entry));
+                if (fragment != null) {
+                    transaction.remove(fragment);
+                }
+            }
+
+        } finally {
+            transaction.commitNow();
+        }
+    }
+
     @NonNull
     private static String tag(@NonNull Entry<? extends Enum<?>> entry) {
         return "history:fragments:entry:" + entry.id();

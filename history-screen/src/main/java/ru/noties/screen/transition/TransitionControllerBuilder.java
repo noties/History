@@ -9,6 +9,7 @@ import java.util.Map;
 
 import ru.noties.screen.Screen;
 
+@SuppressWarnings("unused")
 public class TransitionControllerBuilder<K extends Enum<K>> {
 
     private final Map<Key<K>, ScreenTransition<K>> transitions = new HashMap<>(3);
