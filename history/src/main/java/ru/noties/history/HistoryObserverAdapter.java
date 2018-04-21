@@ -32,4 +32,9 @@ public abstract class HistoryObserverAdapter<K extends Enum<K>> implements Histo
     public void onEntriesPopped(@NonNull List<Entry<K>> popped, @Nullable Entry<K> toAppear) {
 
     }
+
+    @Override
+    public void onEntriesDropped(@NonNull List<Entry<K>> dropped) {
+
+    }
 }

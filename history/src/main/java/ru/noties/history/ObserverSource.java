@@ -43,4 +43,11 @@ class ObserverSource<K extends Enum<K>> implements History.Observer<K> {
             observer.onEntriesPopped(popped, toAppear);
         }
     }
+
+    @Override
+    public void onEntriesDropped(@NonNull List<Entry<K>> dropped) {
+        for (History.Observer<K> observer : observers.begin()) {
+            observer.onEntriesDropped(dropped);
+        }
+    }
 }

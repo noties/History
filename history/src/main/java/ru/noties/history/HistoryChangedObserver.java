@@ -64,6 +64,10 @@ public abstract class HistoryChangedObserver<K extends Enum<K>> implements Histo
         onHistoryChanged();
     }
 
+    @Override
+    public void onEntriesDropped(@NonNull List<Entry<K>> dropped) {
+        onHistoryChanged();
+    }
 
     private static class Impl<K extends Enum<K>> extends HistoryChangedObserver<K> {
 

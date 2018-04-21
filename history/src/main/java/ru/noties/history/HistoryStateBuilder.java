@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue", "WeakerAccess"})
 public class HistoryStateBuilder<K extends Enum<K>> {
 
     @NonNull

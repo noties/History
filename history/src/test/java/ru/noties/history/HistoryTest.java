@@ -13,6 +13,8 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -165,6 +167,143 @@ public class HistoryTest {
         assertEquals(Key.FIRST, history.first().key());
     }
 
+    @Test
+    public void drop_active_throws() {
+
+        history.push(Entry.create(Key.FIRST));
+
+        final Entry<Key> active = history.last();
+
+        assertNotNull(active);
+
+        try {
+            history.drop(active);
+            assertTrue(false);
+        } catch (IllegalStateException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void drop_collection_with_active_throws() {
+
+        history.push(Entry.create(Key.FIRST));
+        history.push(Entry.create(Key.SECOND));
+
+        assertEquals(2, history.length());
+
+        final List<Entry<Key>> entries = history.entries();
+        assertEquals(2, entries.size());
+
+        try {
+            history.drop(entries);
+            assertTrue(false);
+        } catch (IllegalStateException e) {
+            assertTrue(true);
+        }
+    }
+
+    @Test
+    public void drop_filter_not_supplied_active() {
+
+        history.push(Entry.create(Key.FIRST));
+        history.push(Entry.create(Key.SECOND));
+
+        assertEquals(2, history.length());
+
+        final Entry<Key> active = history.last();
+
+        assertNotNull(active);
+
+        final class Filter implements History.Filter<Key> {
+
+            private boolean called;
+
+            @Override
+            public boolean test(@NonNull Entry<Key> entry) {
+                called = true;
+                assertNotEquals(entry, active);
+                return false;
+            }
+        }
+        final Filter filter = new Filter();
+
+        final boolean result = history.drop(filter);
+
+        assertTrue(filter.called);
+        assertFalse(result);
+        assertEquals(2, history.length());
+    }
+
+    @Test
+    public void drop_single() {
+
+        history.push(Entry.create(Key.FIRST));
+        history.push(Entry.create(Key.SECOND));
+
+        final Entry<Key> first = history.first();
+        final Entry<Key> last = history.last();
+
+        assertNotNull(first);
+        assertNotNull(last);
+
+        assertEquals(2, history.length());
+
+        final boolean result = history.drop(first);
+        assertTrue(result);
+        assertEquals(1, history.length());
+
+        assertEquals(last, history.first());
+    }
+
+    @Test
+    public void drop_collection() {
+
+        history.push(Entry.create(Key.FIRST));
+        history.push(Entry.create(Key.SECOND));
+        history.push(Entry.create(Key.FIRST));
+        history.push(Entry.create(Key.SECOND));
+
+        assertEquals(4, history.length());
+
+        final List<Entry<Key>> list = history.entries(Key.FIRST);
+        assertEquals(2, list.size());
+
+        final boolean result = history.drop(list);
+
+        assertTrue(result);
+        assertEquals(2, history.length());
+
+        for (Entry<Key> entry: history.entries()) {
+            assertEquals(Key.SECOND, entry.key());
+        }
+    }
+
+    @Test
+    public void drop_filter() {
+
+        history.push(Entry.create(Key.FIRST));
+        history.push(Entry.create(Key.SECOND));
+        history.push(Entry.create(Key.FIRST));
+        history.push(Entry.create(Key.SECOND));
+
+        assertEquals(4, history.length());
+
+        final boolean result = history.drop(new History.Filter<Key>() {
+            @Override
+            public boolean test(@NonNull Entry<Key> entry) {
+                return Key.FIRST == entry.key();
+            }
+        });
+
+        assertTrue(result);
+        assertEquals(2, history.length());
+
+        for (Entry<Key> entry: history.entries()) {
+            assertEquals(Key.SECOND, entry.key());
+        }
+    }
+
     private static abstract class ObserverAdapter<K extends Enum<K>> implements History.Observer<K> {
 
         @Override
@@ -184,6 +323,11 @@ public class HistoryTest {
 
         @Override
         public void onEntriesPopped(@NonNull List<Entry<K>> popped, @Nullable Entry<K> toAppear) {
+            throw new RuntimeException();
+        }
+
+        @Override
+        public void onEntriesDropped(@NonNull List<Entry<K>> dropped) {
             throw new RuntimeException();
         }
     }

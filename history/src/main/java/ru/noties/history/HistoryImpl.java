@@ -4,7 +4,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 class HistoryImpl<K extends Enum<K>> extends History<K> {
@@ -87,6 +89,82 @@ class HistoryImpl<K extends Enum<K>> extends History<K> {
         return out;
     }
 
+    @Override
+    public boolean drop(@NonNull Entry<K> entry) throws IllegalStateException {
+
+        validateEntryIsNotLast(entry);
+
+        final boolean removed = entries.remove(entry);
+        if (removed) {
+            observer.onEntriesDropped(Collections.singletonList(entry));
+        }
+
+        return removed;
+    }
+
+    @Override
+    public boolean drop(@NonNull Collection<Entry<K>> collection) throws IllegalStateException {
+
+        final List<Entry<K>> dropped;
+
+        if (!collection.isEmpty() && length() > 0) {
+            dropped = new ArrayList<>(3);
+            for (Entry<K> entry : collection) {
+                validateEntryIsNotLast(entry);
+                if (entries.remove(entry)) {
+                    dropped.add(entry);
+                }
+            }
+        } else {
+            dropped = null;
+        }
+
+        final boolean hasRemovedEntries = dropped != null && dropped.size() > 0;
+        if (hasRemovedEntries) {
+            observer.onEntriesDropped(dropped);
+        }
+
+        return hasRemovedEntries;
+    }
+
+    private void validateEntryIsNotLast(@NonNull Entry<K> entry) {
+        if (last() == entry) {
+            throw new IllegalStateException("Cannot drop entry: " + entry + " as it is currently " +
+                    "active one. Active entries should be removed by simple operations like: " +
+                    "replace, pop, popTo");
+        }
+    }
+
+    @Override
+    public boolean drop(@NonNull Filter<K> filter) {
+
+        final List<Entry<K>> dropped;
+
+        if (length() > 1) {
+            dropped = new ArrayList<>(3);
+            // last one is not supplied to the filter
+            final Entry<K> last = last();
+            Entry<K> entry;
+            final Iterator<Entry<K>> iterator = entries.iterator();
+            while (iterator.hasNext()) {
+                entry = iterator.next();
+                if (last != entry && filter.test(entry)) {
+                    iterator.remove();
+                    dropped.add(entry);
+                }
+            }
+        } else {
+            dropped = null;
+        }
+
+        final boolean hasDroppedEntries = dropped != null && dropped.size() > 0;
+        if (hasDroppedEntries) {
+            observer.onEntriesDropped(dropped);
+        }
+
+        return hasDroppedEntries;
+    }
+
     @Nullable
     @Override
     public Entry<K> first() {
@@ -111,7 +189,7 @@ class HistoryImpl<K extends Enum<K>> extends History<K> {
         if (entries.size() == 0) {
             out = Collections.emptyList();
         } else {
-            out = Collections.unmodifiableList(entries);
+            out = Collections.unmodifiableList(new ArrayList<>(entries));
         }
         return out;
     }

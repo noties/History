@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 
 @SuppressWarnings({"unused", "UnusedReturnValue"})
@@ -72,10 +73,19 @@ public abstract class History<K extends Enum<K>> {
          * @see #popTo(Entry)
          */
         void onEntriesPopped(@NonNull List<Entry<K>> popped, @Nullable Entry<K> toAppear);
+
+        /**
+         * @param dropped a list of inactive entries that are dropped
+         * @see #drop(Entry)
+         * @see #drop(Collection)
+         * @see #drop(Filter)
+         */
+        void onEntriesDropped(@NonNull List<Entry<K>> dropped);
     }
 
     /**
-     * Interface to be used if {@link #save(Filter)} requires filtering of existing entries
+     * Interface to be used if {@link #save(Filter)} requires filtering of existing entries or to
+     * determine which {@link Entry}\'s should be removed in {@link #drop(Filter)} operation
      */
     public interface Filter<K extends Enum<K>> {
 
@@ -125,6 +135,36 @@ public abstract class History<K extends Enum<K>> {
      */
     @NonNull
     public abstract List<Entry<K>> popTo(@NonNull Entry<K> entry);
+
+    /**
+     * @param entry {@link Entry} to remove from this history instance
+     * @return a flag indicating if operation is successful
+     * @throws IllegalStateException if requested entry is currently active one (last)
+     * @see #drop(Collection)
+     * @see #drop(Filter)
+     */
+    public abstract boolean drop(@NonNull Entry<K> entry) throws IllegalStateException;
+
+    /**
+     * @param entries a collection of {@link Entry} to remove from this history instance
+     * @return a flag indicating if operation is successful
+     * @throws IllegalStateException if any of the entries in supplied collection is active one (last)
+     * @see #drop(Entry)
+     * @see #drop(Filter)
+     */
+    public abstract boolean drop(@NonNull Collection<Entry<K>> entries) throws IllegalStateException;
+
+    /**
+     * Note that unlike {@link #drop(Entry)} and {@link #drop(Collection)} this method doesn\'t throw
+     * an exception as filter won\'t be called on an active (last) entry.
+     *
+     * @param filter {@link Filter} to determine which {@link Entry}\'s should be removed from
+     *               this history instance
+     * @return a flag indicating if operation is successful
+     * @see #drop(Entry)
+     * @see #drop(Collection)
+     */
+    public abstract boolean drop(@NonNull Filter<K> filter);
 
     /**
      * @return first {@link Entry} in this history if it\'s present (history not empty)
